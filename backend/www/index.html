@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#F5F8F3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Landas — Design and Development of an Intelligent System for Predictive Modeling of Students' Learning Styles Using Data Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F5F8F3;
+    --paper-alt:#EAF2EA;
+    --card:#FFFFFF;
+    --ink:#182620;
+    --ink-soft:#57685F;
+    --ink-faint:#8A988F;
+    --line:rgba(24,38,32,0.12);
+    --line-strong:rgba(24,38,32,0.22);
+
+    --visual:#5B4FE9;    --visual-soft:#EDEBFC;   --visual-deep:#372E9E;
+    --auditory:#F0603C;  --auditory-soft:#FDEAE3; --auditory-deep:#A43C22;
+    --readwrite:#0FA07F; --readwrite-soft:#E1F5EE;--readwrite-deep:#0A6B56;
+    --kinesthetic:#E6A417;--kinesthetic-soft:#FCF0DA;--kinesthetic-deep:#8F660D;
+
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-display:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Space Grotesk', system-ui, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{height:100%;overscroll-behavior-y:none;}
+  body{margin:0;
+       background:
+         radial-gradient(ellipse 700px 500px at 8% 8%, rgba(91,79,233,0.09) 0%, rgba(91,79,233,0.03) 40%, transparent 70%),
+         radial-gradient(ellipse 650px 500px at 95% 15%, rgba(240,96,60,0.08) 0%, rgba(240,96,60,0.03) 40%, transparent 70%),
+         radial-gradient(ellipse 700px 550px at 12% 92%, rgba(15,160,127,0.09) 0%, rgba(15,160,127,0.03) 40%, transparent 70%),
+         radial-gradient(ellipse 650px 500px at 92% 90%, rgba(230,164,23,0.09) 0%, rgba(230,164,23,0.03) 40%, transparent 70%),
+         #F5F8F3;
+       color:var(--ink);font-family:var(--font-body);min-height:100%;
+       padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);
+       -webkit-user-select:none;user-select:none;}
+  input, textarea{-webkit-user-select:text;user-select:text;}
+  #app{max-width:1180px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1;}
+  .bg-decor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .bg-shape{position:absolute;font-size:38px;opacity:.4;animation:bgFloat 10s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.05));}
+  @keyframes bgFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-26px) rotate(8deg);}}
+  @media (max-width:1000px){.bg-decor{display:none;}}
+
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);}
+  h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.15;}
+  p{line-height:1.55;color:var(--ink-soft);}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:10px;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .hamburger-btn{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex:none;}
+  .hamburger-btn:hover{border-color:var(--line-strong);transform:scale(1.08) rotate(-4deg);}
+  .hamburger-btn{transition:transform .15s cubic-bezier(.3,1.6,.5,1), border-color .15s ease;}
+  .hamburger-btn:active{transform:scale(.9);}
+  .hamburger-btn span{display:block;width:16px;height:2px;background:var(--ink-soft);border-radius:2px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(155deg,var(--readwrite),var(--visual));position:relative;flex:none;transition:transform .35s cubic-bezier(.3,1.4,.5,1);}
+  .brand:hover .brand-mark{transform:rotate(14deg) scale(1.08);}
+  .brand-mark svg{position:absolute;inset:0;margin:auto;}
+  .brand-name{font-family:var(--font-display);font-weight:700;font-size:19px;}
+  .brand-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);letter-spacing:.04em;margin-top:1px;}
+  .home-link{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;}
+  .home-link:hover{border-color:var(--line-strong);}
+
+  /* ---------- navigation drawer ---------- */
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(24,38,32,0.38);z-index:40;opacity:0;pointer-events:none;transition:opacity .22s ease;}
+  .drawer-backdrop.open{opacity:1;pointer-events:auto;}
+  .drawer-panel{position:fixed;top:0;left:0;bottom:0;width:300px;max-width:86vw;background:var(--card);z-index:41;
+    box-shadow:2px 0 24px rgba(24,38,32,0.18);transform:translateX(-104%);transition:transform .25s cubic-bezier(.2,.8,.3,1);
+    display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
+  .drawer-panel.open{transform:translateX(0);}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px 18px 14px;border-bottom:1px solid var(--line);}
+  .drawer-close{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--paper-alt);cursor:pointer;font-size:16px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;}
+  .drawer-body{padding:16px 18px 22px;overflow-y:auto;flex:1;}
+  .drawer-section-title{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:16px 0 8px;}
+  .drawer-section-title:first-child{margin-top:0;}
+  .drawer-item{display:flex;align-items:flex-start;gap:12px;padding:11px 10px;border-radius:var(--radius-sm);cursor:pointer;}
+  .drawer-item:hover{background:var(--paper-alt);}
+  .drawer-item .di-icon{font-size:19px;flex:none;margin-top:1px;transition:transform .15s ease;}
+  .drawer-item:hover .di-icon{animation:wiggle .45s ease;transform:scale(1.15);}
+  .drawer-item .di-text b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;}
+  .drawer-item .di-text span{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;line-height:1.4;}
+  .drawer-howto{background:var(--visual-soft);border-radius:var(--radius-md);padding:14px 15px;margin-top:4px;}
+  .drawer-howto h4{font-family:var(--font-display);font-size:14px;color:var(--visual-deep);margin:0 0 6px;}
+  .drawer-howto ol{margin:0;padding-left:18px;}
+  .drawer-howto li{font-size:12.5px;color:var(--ink);line-height:1.6;}
+  .drawer-foot{padding:14px 18px;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
+
+  /* ---------- trail ---------- */
+  .trail{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin:6px 0 30px;padding:0 6px;}
+  .trail::before{content:"";position:absolute;top:19px;left:26px;right:26px;height:0;border-top:3px dashed var(--line-strong);z-index:0;}
+  .stop{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;}
+  .stop-dot{width:40px;height:40px;border-radius:50%;background:var(--card);border:3px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:17px;transition:transform .2s ease;}
+  .stop-label{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);text-align:center;max-width:80px;}
+  .stop.done .stop-dot{background:var(--readwrite);border-color:var(--readwrite-deep);color:#fff;}
+  .stop.active .stop-dot{background:var(--visual);border-color:var(--visual-deep);color:#fff;transform:scale(1.12);}
+  .stop.active .stop-label{color:var(--ink);font-weight:600;}
+  .subdots{display:flex;gap:4px;margin-top:2px;}
+  .subdot{width:6px;height:6px;border-radius:50%;background:var(--line-strong);}
+  .subdot.on{background:var(--visual);}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px;box-shadow:0 8px 28px rgba(24,38,32,0.06);}
+  .card + .card{margin-top:16px;}
+
+  /* ---------- start screen ---------- */
+  .hero{text-align:center;padding:26px 10px 10px;}
+  .hero h1{font-size:34px;}
+  .hero p{max-width:520px;margin:12px auto 0;font-size:15px;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px;}
+  @media (max-width:620px){.role-grid{grid-template-columns:1fr;}}
+  .role-card{border-radius:var(--radius-lg);padding:26px 22px;text-align:left;cursor:pointer;border:2px solid transparent;transition:transform .15s ease, border-color .15s ease;}
+  .role-card:hover{transform:translateY(-5px) rotate(-1deg);}
+  .role-card:hover .role-icon{animation:wiggle .5s ease;}
+  .role-card.student{background:var(--visual-soft);}
+  .role-card.student:hover{border-color:var(--visual);}
+  .role-card.teacher{background:var(--kinesthetic-soft);}
+  .role-card.teacher:hover{border-color:var(--kinesthetic);}
+  .role-icon{font-size:30px;}
+  .role-card h3{font-size:20px;margin-top:10px;}
+  .role-card p{font-size:13.5px;margin-top:6px;color:var(--ink-soft);}
+  .role-cta{margin-top:14px;font-family:var(--font-mono);font-size:11.5px;font-weight:600;letter-spacing:.03em;}
+  .role-card.student .role-cta{color:var(--visual-deep);}
+  .role-card.teacher .role-cta{color:var(--kinesthetic-deep);}
+
+  .context-strip{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);}
+  .context-item{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);display:flex;align-items:center;gap:6px;}
+  .context-item b{color:var(--ink-soft);font-weight:600;}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:var(--font-body);font-weight:600;font-size:14px;border-radius:999px;border:none;cursor:pointer;padding:12px 24px;transition:transform .12s ease, opacity .12s ease;}
+  .btn:active{transform:scale(.9) rotate(-2deg);transition:transform .1s cubic-bezier(.3,1.6,.5,1);}
+  .btn{transition:transform .16s cubic-bezier(.3,1.6,.5,1), opacity .12s ease, box-shadow .16s ease;}
+  .btn-primary:hover{box-shadow:0 4px 14px rgba(24,38,32,0.18);}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line-strong);}
+  .btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:22px;}
+
+  /* ---------- form ---------- */
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+  .field input, .field select{width:100%;padding:11px 13px;border-radius:var(--radius-sm);border:1.5px solid var(--line-strong);font-family:var(--font-body);font-size:15px;background:var(--paper-alt);color:var(--ink);}
+  .field input:focus, .field select:focus{outline:2px solid var(--visual);outline-offset:1px;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px;}
+  @media (max-width:520px){.form-grid{grid-template-columns:1fr;} .form-grid-3{grid-template-columns:1fr;}}
+  .error-text{color:var(--auditory-deep);font-size:12.5px;margin-top:-10px;margin-bottom:14px;display:none;}
+  .error-text.show{display:block;}
+
+  /* ---------- questionnaire ---------- */
+  .q-count{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-bottom:6px;}
+  .q-prompt{font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:20px;}
+  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:560px){.opt-grid{grid-template-columns:1fr;}}
+  .opt{display:flex;align-items:center;gap:14px;padding:20px 18px;border-radius:var(--radius-md);border:2px solid var(--line);background:var(--paper-alt);cursor:pointer;text-align:left;font-family:var(--font-body);min-height:64px;}
+  .opt:hover{border-color:var(--line-strong);}
+  .opt .icon{font-size:28px;flex:none;}
+  .opt.selected{border-color:var(--ink);background:var(--card);}
+  .opt.style-V.selected{border-color:var(--visual);background:var(--visual-soft);}
+  .opt.style-A.selected{border-color:var(--auditory);background:var(--auditory-soft);}
+  .opt.style-R.selected{border-color:var(--readwrite);background:var(--readwrite-soft);}
+  .opt.style-K.selected{border-color:var(--kinesthetic);background:var(--kinesthetic-soft);}
+  .opt span.txt{font-size:14.5px;color:var(--ink);}
+
+  /* ---------- loading ---------- */
+  .loading-wrap{text-align:center;padding:60px 10px;}
+  .spinner{width:54px;height:54px;border-radius:50%;border:5px solid var(--line);border-top-color:var(--visual);margin:0 auto 18px;animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-msg{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-faint);}
+
+  /* ---------- result ---------- */
+  .badge-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .style-badge{display:inline-flex;align-items:center;gap:9px;padding:10px 18px;border-radius:999px;font-family:var(--font-display);font-weight:700;font-size:17px;}
+  .style-badge.V{background:var(--visual-soft);color:var(--visual-deep);}
+  .style-badge.A{background:var(--auditory-soft);color:var(--auditory-deep);}
+  .style-badge.R{background:var(--readwrite-soft);color:var(--readwrite-deep);}
+  .style-badge.K{background:var(--kinesthetic-soft);color:var(--kinesthetic-deep);}
+  .confidence{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-faint);}
+
+  .bar-list{margin-top:22px;display:flex;flex-direction:column;gap:10px;}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:10px;}
+  .bar-label{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
+  .bar-track{height:11px;border-radius:6px;background:var(--paper-alt);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:6px;}
+  .bar-fill.V{background:var(--visual);} .bar-fill.A{background:var(--auditory);}
+  .bar-fill.R{background:var(--readwrite);} .bar-fill.K{background:var(--kinesthetic);}
+  .bar-pct{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);text-align:right;}
+
+  .reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;}
+  @media (max-width:600px){.reco-grid{grid-template-columns:1fr;}}
+  .reco-card{background:var(--paper-alt);border-radius:var(--radius-md);padding:16px 18px;}
+  .reco-card h3{font-size:13px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:8px;}
+  .reco-card p{font-size:14px;color:var(--ink);margin:0;}
+
+  /* ---------- student dashboard ---------- */
+  .dash-hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .dash-avatar{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;flex:none;animation:floaty 3s ease-in-out infinite;box-shadow:0 4px 0 rgba(0,0,0,0.04);}
+  .dash-avatar.V{background:var(--visual-soft);} .dash-avatar.A{background:var(--auditory-soft);}
+  .dash-avatar.R{background:var(--readwrite-soft);} .dash-avatar.K{background:var(--kinesthetic-soft);}
+  .dash-hero-text h2{font-size:22px;margin-bottom:6px;}
+  .dash-blurb{font-size:13.5px;color:var(--ink-soft);max-width:420px;}
+  .dash-conf-row{margin-top:18px;}
+  .dash-conf-label{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-bottom:6px;}
+  .info-strip{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .info-chip{background:var(--paper-alt);padding:8px 14px;border-radius:999px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);display:inline-flex;gap:6px;align-items:center;transition:transform .15s ease;}
+  .info-chip:hover{transform:translateY(-2px) scale(1.03);}
+  .tip-card{margin-top:16px;}
+  .tip-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line);}
+  .tip-item:last-child{border-bottom:none;}
+  .tip-item .tip-icon{font-size:18px;flex:none;}
+  .tip-item span{font-size:13.5px;color:var(--ink);}
+  .section-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px;}
+  .section-tab{font-family:var(--font-mono);font-size:11.5px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line-strong);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:transform .12s ease, background .15s ease, color .15s ease;}
+  .section-tab:hover{transform:translateY(-2px);}
+  .section-tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .section-group-title{font-size:14px;color:var(--ink-soft);margin:22px 0 8px;font-weight:600;}
+  .section-breakdown-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  @media (max-width:620px){.section-breakdown-grid{grid-template-columns:1fr;}}
+  .section-mini-card{background:var(--paper-alt);border-radius:var(--radius-md);padding:16px 18px;}
+  .section-mini-card h3{font-size:13.5px;color:var(--ink);margin-bottom:10px;}
+  .bar-row.sm{grid-template-columns:90px 1fr 36px;gap:8px;}
+  .bar-track.sm{height:7px;}
+
+  .save-note{margin-top:20px;font-family:var(--font-mono);font-size:11.5px;color:var(--readwrite-deep);display:flex;align-items:center;gap:7px;}
+
+  /* ---------- login / signup (shared by teachers & students) ---------- */
+  .login-wrap{max-width:380px;margin:20px auto 0;}
+  .login-icon{font-size:34px;text-align:center;display:block;margin-bottom:6px;cursor:pointer;transition:transform .15s ease;}
+  .login-icon:hover{animation:wiggle .5s ease;}
+  .login-icon:active{transform:scale(.85) rotate(-10deg);}
+
+  /* ---------- teacher dashboard ---------- */
+  .dash-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:620px){.option-grid{grid-template-columns:1fr;}}
+  .option-card{border-radius:var(--radius-lg);padding:22px;cursor:pointer;border:2px solid var(--line);background:var(--paper-alt);}
+  .option-card:hover{border-color:var(--line-strong);transform:translateY(-4px) rotate(1deg);}
+  .option-card{transition:transform .18s cubic-bezier(.3,1.4,.5,1), border-color .15s ease;}
+  .option-card .icon{font-size:26px;display:inline-block;}
+  .option-card:hover .icon{animation:wiggle .5s ease;}
+  .option-card h3{font-size:17px;margin-top:8px;}
+  .option-card p{font-size:13px;margin-top:5px;}
+
+  .class-chart{margin-top:10px;}
+  .roster{margin-top:22px;display:flex;flex-direction:column;gap:8px;}
+  .roster-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--line);cursor:pointer;background:var(--card);}
+  .roster-row:hover{border-color:var(--line-strong);background:var(--paper-alt);transform:translateX(4px) scale(1.01);}
+  .roster-row{transition:transform .15s cubic-bezier(.3,1.4,.5,1), border-color .15s ease, background .15s ease;}
+  .roster-row:active{transform:scale(.98);}
+  .mini-badge{transition:transform .15s ease;}
+  .roster-row:hover .mini-badge{transform:scale(1.08) rotate(-3deg);}
+  .roster-name{font-size:14px;font-weight:600;}
+  .roster-meta{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);}
+  .mini-badge{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;}
+  .mini-badge.V{background:var(--visual-soft);color:var(--visual-deep);}
+  .mini-badge.A{background:var(--auditory-soft);color:var(--auditory-deep);}
+  .mini-badge.R{background:var(--readwrite-soft);color:var(--readwrite-deep);}
+  .mini-badge.K{background:var(--kinesthetic-soft);color:var(--kinesthetic-deep);}
+  .new-tag{font-family:var(--font-mono);font-size:9.5px;font-weight:600;letter-spacing:.04em;color:var(--readwrite-deep);background:var(--readwrite-soft);padding:2px 7px;border-radius:999px;margin-left:8px;}
+
+  .back-link{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:14px;}
+  .back-link:hover{color:var(--ink);}
+
+  .profile-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
+  .profile-meta{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);margin-top:4px;}
+
+  .footer-note{text-align:center;margin-top:34px;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);}
+
+  /* ---------- child-friendly / interactive ---------- */
+  @keyframes wiggle{0%,100%{transform:rotate(0deg);}25%{transform:rotate(-6deg);}75%{transform:rotate(6deg);}}
+  @keyframes popIn{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes optBounce{0%{transform:scale(1);}35%{transform:scale(1.06);}60%{transform:scale(.98);}100%{transform:scale(1);}}
+  @keyframes checkPop{0%{transform:scale(0) rotate(-20deg);}60%{transform:scale(1.25) rotate(8deg);}100%{transform:scale(1) rotate(0deg);}}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  @keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(70px) rotate(280deg);opacity:0;}}
+
+  .mascot-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;animation:popIn .35s ease;}
+  .mascot-face{font-size:38px;flex:none;animation:floaty 2.6s ease-in-out infinite;cursor:pointer;}
+  .mascot-face:hover{animation:wiggle .5s ease;}
+  .mascot-face.tapped{animation:mascotBounce .55s cubic-bezier(.3,1.8,.4,1);}
+  @keyframes mascotBounce{0%{transform:scale(1) rotate(0deg);}25%{transform:scale(1.3) rotate(-14deg);}50%{transform:scale(.9) rotate(10deg);}75%{transform:scale(1.15) rotate(-6deg);}100%{transform:scale(1) rotate(0deg);}}
+  .mascot-bubble{transition:transform .15s cubic-bezier(.3,1.6,.5,1);}
+  .mascot-bubble.pulse{animation:optBounce .3s ease;}
+  .mascot-bubble{background:var(--card);border:2px solid var(--line-strong);border-radius:var(--radius-md);padding:10px 14px;font-family:var(--font-body);font-size:13.5px;color:var(--ink);position:relative;}
+
+  .role-card{animation:popIn .3s ease;}
+  .role-card:active{transform:scale(.96) translateY(-1px);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .opt{transition:transform .12s ease, border-color .12s ease, background .12s ease;}
+  .opt:hover{transform:translateY(-2px) scale(1.01);}
+  .opt:hover .icon{animation:wiggle .4s ease;}
+  .opt:active{transform:scale(.97);}
+  .opt.selected{animation:optBounce .32s ease;}
+  .opt-check{display:none;margin-left:auto;font-size:18px;flex-shrink:0;}
+  .opt.selected .opt-check{display:inline-block;animation:checkPop .35s cubic-bezier(.3,1.6,.5,1);}
+  .stop-dot{cursor:default;}
+  .stop.active .stop-dot{animation:floaty 1.6s ease-in-out infinite;}
+
+  .confetti-strip{position:relative;height:0;overflow:visible;}
+  .confetti-piece{position:absolute;top:0;width:8px;height:8px;border-radius:2px;animation:confettiFall 1.1s ease-in forwards;}
+
+  .cheer-text{font-family:var(--font-mono);font-size:11.5px;color:var(--readwrite-deep);margin-top:8px;}
+
+  .forgot-link{text-align:center;margin-top:-6px;margin-bottom:16px;font-family:var(--font-mono);font-size:12px;color:var(--visual-deep);cursor:pointer;text-decoration:underline;}
+  .forgot-link:hover{color:var(--visual);}
+  .reset-note{background:var(--readwrite-soft);border-radius:var(--radius-md);padding:14px 16px;font-size:13.5px;color:var(--ink);margin-top:14px;}
+
+  /* ---------- quiz: themed background per question ---------- */
+  @keyframes cardSlideIn{0%{transform:translateY(14px) scale(.98);opacity:0;}100%{transform:translateY(0) scale(1);opacity:1;}}
+  @keyframes iconPop{0%{transform:scale(0) rotate(-15deg);}70%{transform:scale(1.15) rotate(6deg);}100%{transform:scale(1) rotate(0deg);}}
+  .q-card{position:relative;overflow:hidden;animation:cardSlideIn .32s cubic-bezier(.2,.8,.3,1);transition:background .25s ease;}
+  .q-card.theme-visual{background:linear-gradient(165deg,var(--visual-soft),var(--card) 65%);}
+  .q-card.theme-auditory{background:linear-gradient(165deg,var(--auditory-soft),var(--card) 65%);}
+  .q-card.theme-readwrite{background:linear-gradient(165deg,var(--readwrite-soft),var(--card) 65%);}
+  .q-card.theme-kinesthetic{background:linear-gradient(165deg,var(--kinesthetic-soft),var(--card) 65%);}
+  .q-topic-icon{font-size:42px;display:inline-flex;align-items:center;justify-content:center;width:68px;height:68px;border-radius:18px;background:rgba(255,255,255,.6);margin-bottom:14px;animation:iconPop .4s cubic-bezier(.3,1.5,.5,1);}
+  .theme-visual .q-topic-icon{background:var(--card);box-shadow:0 2px 0 var(--visual-soft) inset, 0 0 0 2px var(--visual-soft);}
+  .theme-auditory .q-topic-icon{background:var(--card);box-shadow:0 2px 0 var(--auditory-soft) inset, 0 0 0 2px var(--auditory-soft);}
+  .theme-readwrite .q-topic-icon{background:var(--card);box-shadow:0 2px 0 var(--readwrite-soft) inset, 0 0 0 2px var(--readwrite-soft);}
+  .theme-kinesthetic .q-topic-icon{background:var(--card);box-shadow:0 2px 0 var(--kinesthetic-soft) inset, 0 0 0 2px var(--kinesthetic-soft);}
+  @media (max-width:560px){.q-topic-icon{width:46px;height:46px;font-size:26px;border-radius:13px;}}
+
+  .snap{margin:4px 0 20px;}
+  .snap-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  @media (max-width:620px){.snap-chips{grid-template-columns:repeat(2,1fr);}}
+  .snap-chip{border:2px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px;cursor:pointer;background:var(--card);user-select:none;transition:transform .18s cubic-bezier(.3,1.4,.5,1),border-color .15s ease,background .15s ease;}
+  .snap-chip:hover{transform:translateY(-3px);border-color:var(--line-strong);}
+  .snap-chip:active{transform:scale(.97);}
+  .snap-chip.on{border-color:var(--ink);background:var(--paper-alt);}
+  .snap-chip.V.on{background:var(--visual-soft);} .snap-chip.A.on{background:var(--auditory-soft);}
+  .snap-chip.R.on{background:var(--readwrite-soft);} .snap-chip.K.on{background:var(--kinesthetic-soft);}
+  .snap-num{font-size:26px;font-weight:700;line-height:1.1;}
+  .snap-lbl{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:2px;}
+  .snap-search{width:100%;box-sizing:border-box;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font:inherit;font-size:14px;background:var(--card);color:var(--ink);transition:border-color .15s ease,box-shadow .15s ease;}
+  .snap-search:focus{outline:none;border-color:var(--line-strong);box-shadow:0 0 0 3px rgba(91,79,233,0.12);}
+  .snap-results{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .snap-results .roster-row{animation:popIn .22s ease both;}
+  .snap-more{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);cursor:pointer;padding:4px 2px;}
+  .snap-more:hover{color:var(--ink);}
+  @media (prefers-reduced-motion:reduce){.snap-results .roster-row{animation:none;}.snap-chip{transition:none;}}
+  
+  .dash-hero{background:linear-gradient(120deg,var(--visual-soft) 0%,var(--readwrite-soft) 100%);border:1px solid var(--line);border-left:6px solid var(--visual);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:0 6px 18px rgba(91,79,233,0.10);}
+  .snap-chip{position:relative;border-width:2px;}
+  .snap-chip.V{border-color:var(--visual);background:var(--visual-soft);} .snap-chip.V .snap-num{color:var(--visual-deep);}
+  .snap-chip.A{border-color:var(--auditory);background:var(--auditory-soft);} .snap-chip.A .snap-num{color:var(--auditory-deep);}
+  .snap-chip.R{border-color:var(--readwrite);background:var(--readwrite-soft);} .snap-chip.R .snap-num{color:var(--readwrite-deep);}
+  .snap-chip.K{border-color:var(--kinesthetic);background:var(--kinesthetic-soft);} .snap-chip.K .snap-num{color:var(--kinesthetic-deep);}
+  .snap-chip.on{box-shadow:0 6px 16px rgba(24,38,32,0.18);transform:translateY(-3px);}
+  .snap-chip.top::after{content:"\2605 Most common";position:absolute;top:-10px;right:10px;font-family:var(--font-mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ink);color:#fff;}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ================= BACKEND API SETUP =================
+   This frontend is served by the same Express server that exposes
+   the API (see server.js — express.static + app.use('/api/...')),
+   so a relative path always resolves to the current origin:
+     - locally:     http://localhost:4000/api
+     - in production: https://landas-app.onrender.com/api
+   No need to hardcode a host here.
+==================================================== */
+var API_BASE = "/api";
+
+/* Thin fetch wrapper: attaches the JWT (when present), parses JSON,
+   and turns a non-2xx response into a rejected promise carrying the
+   server's { error } message, so callers can do res.error the same
+   way they used to check Supabase's res.error. */
+var authToken = null;
+function api(path, options){
+  options = options || {};
+  var headers = Object.assign({ "Content-Type": "application/json" }, options.headers || {});
+  if(authToken) headers["Authorization"] = "Bearer " + authToken;
+  return fetch(API_BASE + path, Object.assign({}, options, { headers: headers }))
+    .then(function(resp){
+      return resp.json().catch(function(){ return {}; }).then(function(body){
+        if(!resp.ok){ return { error: body.error || ("Request failed (" + resp.status + ")") }; }
+        return body;
+      });
+    })
+    .catch(function(){
+      return { error: "Could not reach the server. Check your connection and that the backend is running." };
+    });
+}
+
+
+/* ================= data ================= */
+var STYLE_NAMES = {V:"Visual", A:"Auditory", R:"Read/Write", K:"Kinesthetic"};
+var STYLE_ICON = {V:"\uD83D\uDC40", A:"\uD83D\uDC42", R:"\uD83D\uDCD6", K:"\u270B"};
+
+var QUESTIONS = [
+  {icon:"\uD83C\uDF10", theme:"visual", p:"When learning from the Internet I like:",
+   o:[["R","Detailed articles"],["K","Videos showing how to do things"],
+      ["A","Podcasts and videos where I can listen to experts"],["V","Interesting design and visual features"]]},
+  {icon:"\uD83C\uDFE0", theme:"auditory", p:"I want to find out about some accommodation. Before visiting, I would want:",
+   o:[["R","A printed description of the rooms and features"],["A","A discussion with the owner or manager"],
+      ["V","A plan showing the rooms and a map of the area"],["K","To view a video of the property"]]},
+  {icon:"\uD83D\uDCDA", theme:"readwrite", p:"When I am learning I:",
+   o:[["R","Read books, articles and handouts"],["K","Use examples and applications"],
+      ["A","Like to talk things through"],["V","See patterns in things"]]},
+  {icon:"\uD83D\uDCBB", theme:"kinesthetic", p:"I want to learn to do something new on a computer. I would:",
+   o:[["R","Read the written instructions that came with the program"],["A","Talk with people who know about the program"],
+      ["K","Start using it and learn by trial and error"],["V","Follow the diagrams in a book"]]},
+  {icon:"\uD83C\uDFB2", theme:"visual", p:"I want to learn how to play a new board game or card game. I would:",
+   o:[["A","Listen to somebody explaining it and ask questions"],["R","Read the instructions"],
+      ["K","Watch others play the game before joining in"],["V","Use the diagrams that explain the stages, moves, and strategies"]]},
+  {icon:"\uD83E\uDD38", theme:"auditory", p:"I want to be sure I am doing my exercises correctly. I would:",
+   o:[["A","Listen to an explanation about how the exercises should be done"],["K","Compare what I am doing with a video demonstration"],
+      ["V","Study diagrams illustrating the way the exercises should be done"],["R","Check a list of important aspects of the exercises to get right"]]},
+  {icon:"\uD83D\uDCB0", theme:"readwrite", p:"I want to save more money and decide between a range of options. I would:",
+   o:[["V","Use graphs showing different options for different time periods"],["A","Talk with an expert about the options"],
+      ["K","Consider examples of each option using my own information"],["R","Read a print brochure that describes the options in detail"]]},
+  {icon:"\uD83D\uDCF7", theme:"kinesthetic", p:"I want to learn how to take better photos. I would:",
+   o:[["K","Use examples of good and poor photos showing how to improve them"],["V","Use diagrams showing the camera and what each part does"],
+      ["A","Ask questions and talk about the camera and its features"],["R","Use the written instructions about what to do"]]},
+  {icon:"\uD83D\uDCCA", theme:"visual", p:"A website has a video showing how to make a special graph or chart, with a person speaking, some lists and words, and some diagrams. I would learn most from:",
+   o:[["R","Reading the words"],["K","Watching the actions"],
+      ["A","Listening"],["V","Seeing the diagrams"]]},
+  {icon:"\uD83D\uDDFA\uFE0F", theme:"auditory", p:"I want to find out more about a tour that I am going on. I would:",
+   o:[["K","Look at details about the highlights and activities on the tour"],["R","Read about the tour on the itinerary"],
+      ["A","Talk with the person who planned the tour, or others who are going"],["V","Use a map and see where the places are"]]},
+  {icon:"\uD83C\uDFC6", theme:"readwrite", p:"I have finished a competition or test and I would like some feedback:",
+   o:[["R","Using a written description of my results"],["V","Using graphs showing how my performance has improved"],
+      ["A","From somebody who talks it through with me"],["K","Using examples from what I have done"]]},
+  {icon:"\uD83C\uDFA4", theme:"kinesthetic", p:"I prefer a presenter or a teacher who uses:",
+   o:[["V","Diagrams, charts, maps, or graphs"],["A","Question and answer, talk, group discussion, or guest speakers"],
+      ["R","Handouts, books, or readings"],["K","Demonstrations, models, or practical sessions"]]},
+  {icon:"\uD83C\uDFDB\uFE0F", theme:"visual", p:"I am making a history of the area where I live. I would:",
+   o:[["V","Gather old maps and charts"],["K","Compare historical photos of the area with what is there now"],
+      ["A","Record stories from people talking about old times"],["R","Read articles and other information in old newspapers and documents"]]},
+  {icon:"\uD83D\uDCCB", theme:"auditory", p:"I want to learn about a new project. I would ask for:",
+   o:[["A","An opportunity to discuss the project"],["R","A written report describing the main features of the project"],
+      ["V","Diagrams to show the project stages with charts of benefits and costs"],["K","Examples where the project has been used successfully"]]},
+  {icon:"\uD83E\uDE91", theme:"readwrite", p:"I am having trouble assembling something that came in parts. I would:",
+   o:[["A","Ask for advice or help from someone else"],["R","Go through the step-by-step written instructions again"],
+      ["V","Go through the step-by-step diagrams again"],["K","Try arranging the parts to see how they fit together"]]},
+  {icon:"\uD83C\uDF93", theme:"kinesthetic", p:"When choosing a career or area of study, these are important for me:",
+   o:[["R","Using words well in written communications"],["A","Communicating with others through discussion"],
+      ["V","Working with designs, maps, or charts"],["K","Applying my knowledge in real situations"]]}
+];
+
+var RECS = {
+  V:{kid:"You learn best with your eyes. Try using colors, pictures, and charts when you study.",
+     adult:"Use diagrams, color-coding, mind maps, and short videos. Seat near visual displays and pair words with images."},
+  A:{kid:"You learn best with your ears. Try saying things out loud or listening to songs and stories.",
+     adult:"Use discussions, read-alouds, songs or rhymes, and verbal instructions. Invite the child to explain answers aloud."},
+  R:{kid:"You learn best with words. Try reading books and writing notes about what you learn.",
+     adult:"Provide worksheets, word lists, written instructions, and journaling activities. Encourage note-taking."},
+  K:{kid:"You learn best by doing. Try hands-on activities, building things, and moving while you learn.",
+     adult:"Use manipulatives, role-play, hands-on experiments, and movement breaks. Let the child act out ideas."}
+};
+
+var STYLE_THEME = {V:"visual", A:"auditory", R:"readwrite", K:"kinesthetic"};
+var STYLE_BLURB = {
+  V:"You take in new ideas best through pictures, colors, and diagrams \u2014 your eyes do a lot of the learning!",
+  A:"You take in new ideas best through listening and talking \u2014 your ears and voice do a lot of the learning!",
+  R:"You take in new ideas best through words \u2014 reading and writing help things stick.",
+  K:"You take in new ideas best by doing \u2014 your hands and body help you understand."
+};
+var STYLE_TIPS = {
+  V:["Use colors or highlighters when you study","Draw a quick picture or diagram for new ideas","Watch short videos to see things in action"],
+  A:["Say your answers out loud while you study","Turn facts into a song or rhyme","Talk with a friend about what you learned"],
+  R:["Write short notes as you read","Make a word list for new topics","Read a story or article about it"],
+  K:["Build or draw something with your hands","Take a movement break while studying","Act out or role-play what you're learning"]
+};
+
+var GRADES = ["Kinder","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"];
+
+var SCHOOLS = [
+  "Abejao Elementary School",
+  "Asgad Elementary School",
+  "Bagtong Central Elementary School",
+  "Balud Elementary School",
+  "Buabua Elementary School",
+  "Burak Elementary School",
+  "Butig Elementary School",
+  "Cagaut Elementary School",
+  "Camanga Elementary School",
+  "Cantomoja Elementary School",
+  "Carapdapan Elementary School",
+  "Caridad Elementary School",
+  "Casili-on Elementary School",
+  "Iberan Elementary School",
+  "Jagnaya Elementary School",
+  "Lusod Elementary School",
+  "Malbog Elementary School",
+  "Salcedo Central Elementary School",
+  "Seguinon Elementary School",
+  "Sto. Ni\u00F1o Elementary School",
+  "Tacla-on Elementary School",
+  "Tagbacan Elementary School",
+  "Talangdawan Elementary School"
+];
+
+/* ================= state ================= */
+var state = {
+  screen: "start",
+  demo: {name:"", age:"", school:"", grade:"", section:""},
+  qIndex: 0,
+  answers: {},
+  result: null,
+  teacherLoggedIn: false,
+  teacherGrade: null,
+  teacherSchool: null,
+  teacherName: null,
+  studentLoggedIn: false,
+  currentStudent: null,
+  currentUser: null,
+  cachedRoster: [],
+  classDashSection: null,
+  loadingMessage: "",
+  authErrorMsg: "",
+  signupSuccess: false,
+  loginError: false,
+  selectedStudent: null,
+  resetSent: false,
+  drawerOpen: false
+};
+
+function gradeSectionLine(s){
+  return s.grade + (s.section ? " \u2014 "+s.section : "") + (s.school ? " \u00B7 "+s.school : "");
+}
+
+function gradeRoster(){
+  return state.cachedRoster || [];
+}
+
+/* Only students who have completed the quiz show up on a teacher's roster.
+   The backend scopes this to the logged-in teacher's own school+grade. */
+function fetchRoster(){
+  return api("/students/roster", { method: "GET" }).then(function(res){
+    if(res.error){ console.error(res.error); return []; }
+    return res.map(function(r){
+      return {id:r.id, label:r.teacher_label, name:r.name, school:r.school, grade:r.grade, section:r.section, style:r.style, conf:r.confidence, isNew: r.isNew};
+    });
+  });
+}
+
+function refreshRoster(nextScreen){
+  state.loadingMessage = "Refreshing\u2026";
+  state.screen = "authLoading"; render();
+  fetchRoster().then(function(roster){
+    state.cachedRoster = roster;
+    state.screen = nextScreen; render();
+  });
+}
+
+/* Called once, right after a logged-in student finishes the quiz.
+   Hits the backend's PUT /students/me/result, authenticated by the
+   student's own JWT — the server derives which row to update from the
+   token, so a student can only ever update their own result. */
+function updateStudentResult(result){
+  if(!state.currentStudent) return Promise.resolve({error:"Not logged in."});
+  return api("/students/me/result", {
+    method: "PUT",
+    body: JSON.stringify({ style: result.style, confidence: result.confidence, answers: answersToArray(state.answers) })
+  });
+}
+
+/* state.answers is {0:"V",1:"K",...}; the backend stores it as an ordered array of 16 letters. */
+function answersToArray(answers){
+  var out = [];
+  for(var i=0;i<QUESTIONS.length;i++) out.push(answers[i] || null);
+  return out;
+}
+
+function computeResult(answers){
+  var counts = {V:0,A:0,R:0,K:0};
+  Object.keys(answers).forEach(function(k){ counts[answers[k]]++; });
+  var total = Object.keys(answers).length;
+  var top = "V";
+  Object.keys(counts).forEach(function(s){ if(counts[s] > counts[top]) top = s; });
+  var pct = {};
+  Object.keys(counts).forEach(function(s){ pct[s] = total ? Math.round((counts[s]/total)*100) : 0; });
+  return {style: top, confidence: pct[top], pct: pct};
+}
+
+function classDistribution(roster){
+  var counts = {V:0,A:0,R:0,K:0};
+  roster.forEach(function(s){ counts[s.style]++; });
+  var total = roster.length;
+  var pct = {};
+  Object.keys(counts).forEach(function(s){ pct[s] = total ? Math.round((counts[s]/total)*100) : 0; });
+  return pct;
+}
+
+/* ---- shared post-auth session loaders ----
+   Called with the backend's { token, profile } response from either
+   /auth/login or /auth/signup/teacher — no extra round trip needed,
+   since the backend already returns the profile inline. */
+function loadTeacherSession(token, profile){
+  authToken = token;
+  state.teacherName = profile.name;
+  state.teacherSchool = profile.school;
+  state.teacherGrade = profile.grade;
+  state.teacherLoggedIn = true;
+  state.authErrorMsg = "";
+  state.loadingMessage = "Loading your class\u2026";
+  state.screen = "authLoading"; render();
+  return fetchRoster().then(function(roster){
+    state.cachedRoster = roster;
+    state.screen = "teacherHome"; render();
+  });
+}
+
+function loadStudentSession(token, profile){
+  authToken = token;
+  state.currentStudent = profile;
+  state.studentLoggedIn = true;
+  state.demo = {name:profile.name, age:profile.age, school:profile.school, grade:profile.grade, section:profile.section};
+  state.authErrorMsg = "";
+  if(profile.style){
+    state.result = {style:profile.style, confidence:profile.confidence};
+    state.screen = "studentHome"; render();
+  } else {
+    state.screen = "quiz"; state.qIndex=0; state.answers={}; render();
+  }
+}
+
+/* ================= render helpers ================= */
+function el(tag, attrs, children){
+  var e = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(function(k){
+    if(k === "class") e.className = attrs[k];
+    else if(k === "html") e.innerHTML = attrs[k];
+    else if(k === "onclick") e.addEventListener("click", attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  (children||[]).forEach(function(c){ if(c) e.appendChild(c); });
+  return e;
+}
+function txt(t){ return document.createTextNode(t); }
+
+function toggleDrawer(force){
+  state.drawerOpen = (typeof force === "boolean") ? force : !state.drawerOpen;
+  render();
+}
+
+/* Navigation drawer: a slide-out panel (hamburger icon in the top bar)
+   that explains what Landas / the quiz is for and how to use the app,
+   plus quick links back to the student and teacher entry points. */
+function navDrawer(){
+  var backdrop = el("div",{class:"drawer-backdrop"+(state.drawerOpen?" open":""),onclick:function(){ toggleDrawer(false); }});
+  var panel = el("div",{class:"drawer-panel"+(state.drawerOpen?" open":"")});
+
+  panel.appendChild(el("div",{class:"drawer-head"},[
+    el("div",{class:"brand"},[
+      el("div",{class:"brand-mark"},[
+        (function(){var s=document.createElementNS("http://www.w3.org/2000/svg","svg");
+          s.setAttribute("width","20");s.setAttribute("height","20");s.setAttribute("viewBox","0 0 20 20");
+          s.innerHTML='<path d="M2 16 C 6 8, 8 14, 10 6 C 12 14, 14 8, 18 3" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>';
+          return s;})()
+      ]),
+      el("div",{},[
+        el("div",{class:"brand-name"},[txt("Landas")]),
+        el("div",{class:"brand-sub"},[txt("VARK LEARNING TRAIL")])
+      ])
+    ]),
+    el("div",{class:"drawer-close",onclick:function(){ toggleDrawer(false); }},[txt("\u2715")])
+  ]));
+
+  var body = el("div",{class:"drawer-body"});
+
+  body.appendChild(el("div",{class:"drawer-howto"},[
+    el("h4",{},[txt("What is this quiz for?")]),
+    el("p",{style:"font-size:12.5px;color:var(--ink);margin:0 0 8px;"},[txt("The Landas quiz (based on the VARK model) is a short, "+QUESTIONS.length+"-question quiz that helps figure out whether a student learns best by seeing, hearing, reading/writing, or doing. It's not a test \u2014 there are no wrong answers.")]),
+    el("h4",{style:"margin-top:12px;"},[txt("How to use Landas")]),
+    el("ol",{},[
+      el("li",{},[txt("Students log in (or create an account), then answer the quiz honestly \u2014 just go with the first choice that feels right.")]),
+      el("li",{},[txt("The result is saved automatically and shows the student's learning style with simple tips for studying.")]),
+      el("li",{},[txt("Teachers log in to see their class's overall learning-style mix, plus tips for teaching that mix.")]),
+      el("li",{},[txt("Teachers can also open any individual student's profile for one-on-one recommendations.")])
+    ])
+  ]));
+
+  body.appendChild(el("div",{class:"drawer-section-title"},[txt("Go to")]));
+  body.appendChild(el("div",{class:"drawer-item",onclick:function(){ toggleDrawer(false); state.authErrorMsg=""; state.screen="start"; render(); }},[
+    el("div",{class:"di-icon"},[txt("\uD83C\uDFE0")]),
+    el("div",{class:"di-text"},[el("b",{},[txt("Home")]), el("span",{},[txt("Back to the start screen")])])
+  ]));
+  body.appendChild(el("div",{class:"drawer-item",onclick:function(){ toggleDrawer(false); state.authErrorMsg=""; state.screen = state.studentLoggedIn ? "studentHome" : "studentLogin"; render(); }},[
+    el("div",{class:"di-icon"},[txt("\uD83E\uDDED")]),
+    el("div",{class:"di-text"},[el("b",{},[txt("Student trail")]), el("span",{},[txt("Take or review the learning-style quiz")])])
+  ]));
+  body.appendChild(el("div",{class:"drawer-item",onclick:function(){ toggleDrawer(false); state.authErrorMsg=""; state.screen = state.teacherLoggedIn ? "teacherHome" : "login"; render(); }},[
+    el("div",{class:"di-icon"},[txt("\uD83E\uDDD1\u200D\uD83C\uDFEB")]),
+    el("div",{class:"di-text"},[el("b",{},[txt("Teacher dashboard")]), el("span",{},[txt("Class overview and student profiles")])])
+  ]));
+
+  body.appendChild(el("div",{class:"drawer-section-title"},[txt("About")]));
+  body.appendChild(el("div",{class:"drawer-item"},[
+    el("div",{class:"di-icon"},[txt("\u2139\uFE0F")]),
+    el("div",{class:"di-text"},[el("b",{},[txt("VARK model")]), el("span",{},[txt("Visual, Auditory, Read/Write, Kinesthetic \u2014 four common ways people take in new information.")])])
+  ]));
+
+  panel.appendChild(body);
+  panel.appendChild(el("div",{class:"drawer-foot"},[txt("Salcedo, Eastern Samar \u00B7 Landas")]));
+
+  return [backdrop, panel];
+}
+
+function topbar(homeAction){
+  var bar = el("div",{class:"topbar"});
+  var left = el("div",{class:"topbar-left"});
+  left.appendChild(el("div",{class:"hamburger-btn",onclick:function(){ toggleDrawer(true); }},[
+    el("span",{}), el("span",{}), el("span",{})
+  ]));
+  var brand = el("div",{class:"brand"},[
+    el("div",{class:"brand-mark"},[
+      (function(){var s=document.createElementNS("http://www.w3.org/2000/svg","svg");
+        s.setAttribute("width","20");s.setAttribute("height","20");s.setAttribute("viewBox","0 0 20 20");
+        s.innerHTML='<path d="M2 16 C 6 8, 8 14, 10 6 C 12 14, 14 8, 18 3" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>';
+        return s;})()
+    ]),
+    el("div",{},[
+      el("div",{class:"brand-name"},[txt("Landas")]),
+      el("div",{class:"brand-sub"},[txt("VARK LEARNING TRAIL")])
+    ])
+  ]);
+  left.appendChild(brand);
+  bar.appendChild(left);
+  var loggedIn = state.teacherLoggedIn || state.studentLoggedIn;
+  bar.appendChild(el("div",{class:"home-link",onclick:homeAction},[txt(loggedIn ? "\uD83D\uDD13 Log out" : "Start over")]));
+  return bar;
+}
+
+var MASCOT_REACTIONS = ["Hoo-hoo! \uD83C\uDF89","You found my secret wiggle!","Tee-hee, that tickles!","Landi says hi! \uD83D\uDC4B","Keep tapping, I don't mind!","Whee! \u2728"];
+function mascot(msg){
+  var bubble = el("div",{class:"mascot-bubble"},[txt(msg)]);
+  var face = el("div",{class:"mascot-face"},[txt("\uD83E\uDD89")]);
+  face.addEventListener("click", function(){
+    face.classList.remove("tapped"); void face.offsetWidth; face.classList.add("tapped");
+    bubble.textContent = MASCOT_REACTIONS[Math.floor(Math.random()*MASCOT_REACTIONS.length)];
+    bubble.classList.remove("pulse"); void bubble.offsetWidth; bubble.classList.add("pulse");
+    setTimeout(function(){ bubble.textContent = msg; }, 1400);
+  });
+  return el("div",{class:"mascot-row"},[face, bubble]);
+}
+
+function trail(activeIndex, doneUpTo, subProgress){
+  var stops = [
+    {icon:"\uD83D\uDEA9", label:"Start"},
+    {icon:"\uD83D\uDCDD", label:"Your info"},
+    {icon:"\uD83E\uDDED", label:"Questions"},
+    {icon:"\uD83C\uDFC1", label:"Result"}
+  ];
+  var wrap = el("div",{class:"trail"});
+  stops.forEach(function(s, i){
+    var cls = "stop";
+    if(i < activeIndex) cls += " done";
+    if(i === activeIndex) cls += " active";
+    var stop = el("div",{class:cls},[
+      el("div",{class:"stop-dot"},[txt(i < activeIndex ? "\u2713" : s.icon)]),
+      el("div",{class:"stop-label"},[txt(s.label)])
+    ]);
+    if(i === 2 && i === activeIndex && subProgress){
+      var sd = el("div",{class:"subdots"});
+      for(var q=0;q<subProgress.total;q++){
+        sd.appendChild(el("div",{class:"subdot"+(q < subProgress.current ? " on":"")}));
+      }
+      stop.appendChild(sd);
+    }
+    wrap.appendChild(stop);
+  });
+  return wrap;
+}
+
+/* ================= screens ================= */
+function render(){
+  var root = document.getElementById("app");
+  root.innerHTML = "";
+  if(state.screen === "start") renderStartScreen(root);
+  else if(state.screen === "quiz") renderQuizScreen(root);
+  else if(state.screen === "loading") renderLoadingScreen(root);
+  else if(state.screen === "result") renderResultScreen(root);
+  else if(state.screen === "login") renderLoginScreen(root);
+  else if(state.screen === "signup") renderSignupScreen(root);
+  else if(state.screen === "studentLogin") renderStudentLoginScreen(root);
+  else if(state.screen === "studentSignup") renderStudentSignupScreen(root);
+  else if(state.screen === "studentHome") renderStudentHomeScreen(root);
+  else if(state.screen === "forgotPassword") renderForgotPasswordScreen(root);
+  else if(state.screen === "authLoading") renderAuthLoadingScreen(root);
+  else if(state.screen === "teacherHome") renderTeacherHome(root);
+  else if(state.screen === "classDash") renderClassDash(root);
+  else if(state.screen === "studentPicker") renderStudentPicker(root);
+  else if(state.screen === "studentProfile") renderStudentProfile(root);
+  else if(state.screen === "modelPerf") renderModelPerf(root);
+  navDrawer().forEach(function(node){ root.appendChild(node); });
+}
+
+function goHome(){
+  authToken = null;
+  state.screen="start"; state.demo={name:"",age:"",school:"",grade:"",section:""}; state.answers={}; state.qIndex=0; state.result=null;
+  state.teacherLoggedIn=false; state.teacherGrade=null; state.teacherSchool=null; state.teacherName=null;
+  state.studentLoggedIn=false; state.currentStudent=null; state.currentUser=null;
+  state.cachedRoster=[]; state.resetSent=false; state.authErrorMsg=""; state.signupSuccess=false; state.classDashSection=null;
+  render();
+}
+
+function renderAuthLoadingScreen(root){
+  root.appendChild(topbar(goHome));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"loading-wrap"},[
+    el("div",{class:"spinner"}),
+    el("div",{class:"loading-msg"},[txt(state.loadingMessage||"One moment\u2026")])
+  ]));
+  root.appendChild(card);
+}
+
+function renderStartScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Hi there! I'm Landi the owl. Tap a card below to get started!"));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"hero"},[
+    el("div",{class:"eyebrow"},[txt("DESIGN AND DEVELOPMENT OF AN INTELLIGENT SYSTEM FOR PREDICTIVE MODELING OF STUDENTS' LEARNING STYLES USING DATA ANALYTICS")]),
+    el("h1",{},[txt("Every learner walks a different trail.")]),
+    el("p",{},[txt("Landas helps young students discover whether they learn best by seeing, hearing, reading, or doing \u2014 and gives teachers clear, practical ways to help.")]),
+    el("p",{style:"margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);"},[txt("Abejao Elementary School \u00B7 Salcedo, Eastern Samar")])
+  ]));
+  var grid = el("div",{class:"role-grid"});
+  var studentCard = el("div",{class:"role-card student",onclick:function(){ state.authErrorMsg=""; state.screen="studentLogin"; render(); }},[
+    el("div",{class:"role-icon"},[txt("\uD83E\uDDED")]),
+    el("h3",{},[txt("I'm a student")]),
+    el("p",{},[txt("Log in to your account (or create one) to walk the trail: answer a short quiz and find out how you learn best.")]),
+    el("div",{class:"role-cta"},[txt("GO TO MY TRAIL \u2192")])
+  ]);
+  var teacherCard = el("div",{class:"role-card teacher",onclick:function(){ state.authErrorMsg=""; state.screen="login"; render(); }},[
+    el("div",{class:"role-icon"},[txt("\uD83E\uDDD1\u200D\uD83C\uDFEB")]),
+    el("h3",{},[txt("I'm a teacher")]),
+    el("p",{},[txt("Log in to see your class's learning styles at a glance, or look up a specific student's profile.")]),
+    el("div",{class:"role-cta"},[txt("GO TO DASHBOARD \u2192")])
+  ]);
+  grid.appendChild(studentCard); grid.appendChild(teacherCard);
+  card.appendChild(grid);
+  card.appendChild(el("div",{class:"context-strip"},[
+    el("div",{class:"context-item"},[txt("\uD83D\uDCCD"), el("b",{},[txt(" Salcedo, Eastern Samar")])]),
+    el("div",{class:"context-item"},[txt("\uD83C\uDFAF"), el("b",{},[txt(" VARK model")])]),
+    el("div",{class:"context-item"},[txt("\uD83D\uDC65"), el("b",{},[txt(" Students & teachers, role-based access")])])
+  ]));
+  root.appendChild(card);
+}
+
+/* ---- student: login ---- */
+function renderStudentLoginScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Welcome back! Log in to keep walking your trail."));
+  var card = el("div",{class:"card login-wrap"});
+  card.appendChild(el("span",{class:"login-icon"},[txt("\uD83E\uDDED")]));
+  card.appendChild(el("h2",{style:"text-align:center;"},[txt("Student login")]));
+  card.appendChild(el("p",{style:"text-align:center;font-size:13px;"},[txt("Log in to take the quiz or see your saved result.")]));
+
+  var wrap = el("div",{style:"margin-top:18px;"});
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Email")]), el("input",{type:"email",id:"sl-email",placeholder:"e.g. miguel@example.com"})]));
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Password")]), el("input",{type:"password",id:"sl-pass",placeholder:"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"})]));
+  wrap.appendChild(el("div",{class:"forgot-link",onclick:function(){ state.authErrorMsg=""; state.screen="forgotPassword"; render(); }},[txt("Forgot password?")]));
+  if(state.authErrorMsg){
+    wrap.appendChild(el("div",{class:"error-text show"},[txt(state.authErrorMsg)]));
+  }
+  card.appendChild(wrap);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:goHome},[txt("Back")]));
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    var email=document.getElementById("sl-email").value.trim();
+    var pass=document.getElementById("sl-pass").value;
+    if(!email || !pass){
+      state.authErrorMsg = "Please enter your email and password."; render(); return;
+    }
+    state.loadingMessage = "Logging you in\u2026";
+    state.screen = "authLoading"; render();
+    api("/auth/login", { method:"POST", body: JSON.stringify({email:email, password:pass}) }).then(function(res){
+      if(res.error || res.role !== "student"){
+        state.screen="studentLogin"; state.authErrorMsg = res.error || "That account isn't a student account."; render(); return;
+      }
+      loadStudentSession(res.token, res.profile);
+    });
+  }},[txt("Log in")]));
+  card.appendChild(row);
+  card.appendChild(el("div",{style:"text-align:center;margin-top:16px;font-size:12.5px;"},[
+    txt("New here? "),
+    el("span",{class:"forgot-link",style:"margin:0;display:inline;",onclick:function(){ state.authErrorMsg=""; state.signupSuccess=false; state.screen="studentSignup"; render(); }},[txt("Create a student account")])
+  ]));
+  root.appendChild(card);
+}
+
+/* ---- student: sign up ---- */
+function renderStudentSignupScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Let's set up your trail! Fill this in with a grown-up if you need help."));
+  var card = el("div",{class:"card login-wrap"});
+  card.appendChild(el("span",{class:"login-icon"},[txt("\uD83C\uDF9F\uFE0F")]));
+  card.appendChild(el("h2",{style:"text-align:center;"},[txt("Create your account")]));
+  card.appendChild(el("p",{style:"text-align:center;font-size:13px;"},[txt("Sign up once, then log in anytime to take the quiz or see your result.")]));
+
+  var wrap = el("div",{style:"margin-top:18px;"});
+
+  var nameGrid = el("div",{class:"form-grid-3"});
+  nameGrid.appendChild(el("div",{class:"field"},[el("label",{},[txt("First name")]), el("input",{type:"text",id:"ssu-first",placeholder:"e.g. Miguel"})]));
+  nameGrid.appendChild(el("div",{class:"field"},[el("label",{},[txt("Middle name")]), el("input",{type:"text",id:"ssu-middle",placeholder:"e.g. Santos"})]));
+  nameGrid.appendChild(el("div",{class:"field"},[el("label",{},[txt("Last name")]), el("input",{type:"text",id:"ssu-last",placeholder:"e.g. Reyes"})]));
+  wrap.appendChild(nameGrid);
+
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Email")]), el("input",{type:"email",id:"ssu-email",placeholder:"e.g. miguel@example.com"})]));
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Password")]), el("input",{type:"password",id:"ssu-pass",placeholder:"At least 6 characters"})]));
+
+  var schoolSel = el("select",{id:"ssu-school"},[el("option",{value:""},[txt("Select your school")])]);
+  SCHOOLS.forEach(function(s){ schoolSel.appendChild(el("option",{value:s},[txt(s)])); });
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("School")]), schoolSel]));
+  wrap.appendChild(el("p",{style:"margin-top:-10px;margin-bottom:14px;font-size:12px;"},[txt("Salcedo, Eastern Samar schools only.")]));
+
+  var grid = el("div",{class:"form-grid"});
+  grid.appendChild(el("div",{class:"field"},[
+    el("label",{},[txt("Age")]),
+    el("input",{type:"number", id:"ssu-age", min:"5", max:"12", placeholder:"e.g. 9"})
+  ]));
+  var gradeSel = el("select",{id:"ssu-grade"},[el("option",{value:""},[txt("Select grade")])]);
+  GRADES.forEach(function(g){ gradeSel.appendChild(el("option",{value:g},[txt(g)])); });
+  grid.appendChild(el("div",{class:"field"},[el("label",{},[txt("Grade")]), gradeSel]));
+  wrap.appendChild(grid);
+
+  wrap.appendChild(el("div",{class:"field",style:"max-width:260px;"},[
+    el("label",{},[txt("Section (optional)")]),
+    el("input",{type:"text", id:"ssu-section", placeholder:"e.g. Sampaguita \u2014 leave blank if none"})
+  ]));
+
+  if(state.signupSuccess){
+    wrap.appendChild(el("div",{class:"reset-note"},[txt("\u2713 Account created! Check your email to confirm it, then come back and log in.")]));
+  }
+  if(state.authErrorMsg){
+    wrap.appendChild(el("div",{class:"error-text show"},[txt(state.authErrorMsg)]));
+  }
+  card.appendChild(wrap);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ state.authErrorMsg=""; state.signupSuccess=false; state.screen="studentLogin"; render(); }},[txt("\u2190 Back to login")]));
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    var first=document.getElementById("ssu-first").value.trim();
+    var middle=document.getElementById("ssu-middle").value.trim();
+    var last=document.getElementById("ssu-last").value.trim();
+    var email=document.getElementById("ssu-email").value.trim();
+    var pass=document.getElementById("ssu-pass").value;
+    var school=document.getElementById("ssu-school").value;
+    var age=document.getElementById("ssu-age").value.trim();
+    var grade=document.getElementById("ssu-grade").value;
+    var section=document.getElementById("ssu-section").value.trim();
+    if(!first||!middle||!last||!email||!pass||!school||!age||!grade){
+      state.authErrorMsg="Please fill in every field."; render(); return;
+    }
+    var name = first+" "+middle+" "+last;
+    state.loadingMessage="Creating your account\u2026";
+    state.screen="authLoading"; render();
+    api("/auth/signup/student", {
+      method:"POST",
+      body: JSON.stringify({ name:name, firstName:first, middleName:middle, lastName:last, email:email, password:pass, school:school, age:age, grade:grade, section:section })
+    }).then(function(res){
+      if(res.error){
+        state.screen="studentSignup"; state.authErrorMsg=res.error; render(); return;
+      }
+      // No email confirmation step with our own backend — the account
+      // and row are created together, so we can log straight in.
+      loadStudentSession(res.token, res.profile);
+    });
+  }},[txt("Create account")]));
+  card.appendChild(row);
+  root.appendChild(card);
+}
+
+/* ---- student: signed-in home (already has a saved result) ---- */
+function renderStudentHomeScreen(root){
+  root.appendChild(topbar(goHome));
+  var student = state.currentStudent || {};
+  var firstName = student.name ? student.name.split(" ")[0] : "friend";
+  root.appendChild(mascot("Welcome back, "+firstName+"! Here's your learning style."));
+  var r = state.result;
+  var theme = STYLE_THEME[r.style] || "visual";
+
+  var card = el("div",{class:"card q-card theme-"+theme});
+
+  var hero = el("div",{class:"dash-hero"});
+  hero.appendChild(el("div",{class:"dash-avatar "+r.style},[txt(STYLE_ICON[r.style])]));
+  hero.appendChild(el("div",{class:"dash-hero-text"},[
+    el("div",{class:"eyebrow"},[txt("YOUR LEARNING STYLE")]),
+    el("h2",{},[txt(STYLE_NAMES[r.style]+" learner")]),
+    el("p",{class:"dash-blurb"},[txt(STYLE_BLURB[r.style])])
+  ]));
+  card.appendChild(hero);
+
+  var confWrap = el("div",{class:"dash-conf-row"});
+  confWrap.appendChild(el("div",{class:"dash-conf-label"},[
+    el("span",{},[txt("CONFIDENCE")]),
+    el("span",{},[txt(r.confidence+"%")])
+  ]));
+  confWrap.appendChild(el("div",{class:"bar-track"},[el("div",{class:"bar-fill "+r.style, style:"width:"+r.confidence+"%"})]));
+  card.appendChild(confWrap);
+
+  var chips = el("div",{class:"info-strip"});
+  if(student.school) chips.appendChild(el("div",{class:"info-chip"},[txt("\uD83C\uDFEB "+student.school)]));
+  if(student.grade) chips.appendChild(el("div",{class:"info-chip"},[txt("\uD83C\uDF93 "+student.grade)]));
+  if(student.section) chips.appendChild(el("div",{class:"info-chip"},[txt("\uD83D\uDC65 "+student.section)]));
+  if(student.age) chips.appendChild(el("div",{class:"info-chip"},[txt("\uD83C\uDF82 Age "+student.age)]));
+  card.appendChild(chips);
+
+  var tipCard = el("div",{class:"reco-card tip-card"});
+  tipCard.appendChild(el("h3",{},[txt("Try these")]));
+  var tipIcons = ["1\uFE0F\u20E3","2\uFE0F\u20E3","3\uFE0F\u20E3"];
+  (STYLE_TIPS[r.style]||[]).forEach(function(tip, i){
+    tipCard.appendChild(el("div",{class:"tip-item"},[
+      el("span",{class:"tip-icon"},[txt(tipIcons[i]||"\u2728")]),
+      el("span",{},[txt(tip)])
+    ]));
+  });
+  card.appendChild(tipCard);
+
+  var btnRow = el("div",{class:"btn-row"});
+  btnRow.appendChild(el("button",{class:"btn btn-ghost",onclick:goHome},[txt("\uD83D\uDD13 Log out")]));
+  btnRow.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    state.screen="quiz"; state.qIndex=0; state.answers={}; render();
+  }},[txt("Retake the quiz \u2192")]));
+  card.appendChild(btnRow);
+  root.appendChild(card);
+}
+
+/* ---- student: questionnaire ---- */
+var CHEERS = ["You're doing great, keep going!", "Nice! Almost halfway there!", "You're doing awesome!", "Keep it up, you've got this!", "Great choices so far!", "Not much longer now!", "You're almost at the finish line!", "Last one \u2014 you're a star!"];
+function renderQuizScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot(CHEERS[state.qIndex] || "You're doing great!"));
+  root.appendChild(trail(2, 0, {current: state.qIndex, total: QUESTIONS.length}));
+  var q = QUESTIONS[state.qIndex];
+  var theme = q.theme || "visual";
+  var card = el("div",{class:"card q-card theme-"+theme, key:state.qIndex});
+  card.appendChild(el("div",{class:"q-topic-icon"},[txt(q.icon || "\u2728")]));
+  card.appendChild(el("div",{class:"q-count"},[txt("QUESTION "+(state.qIndex+1)+" OF "+QUESTIONS.length)]));
+  card.appendChild(el("div",{class:"q-prompt"},[txt(q.p)]));
+
+  var grid = el("div",{class:"opt-grid"});
+  var selected = state.answers[state.qIndex];
+  q.o.forEach(function(opt){
+    var style = opt[0], label = opt[1];
+    var cls = "opt style-"+style + (selected===style ? " selected":"");
+    var optEl = el("div",{class:cls,onclick:function(e){
+      state.answers[state.qIndex] = style;
+      celebrateBurst(e.currentTarget);
+      render();
+    }},[
+      el("div",{class:"icon"},[txt(STYLE_ICON[style])]),
+      el("span",{class:"txt"},[txt(label)]),
+      el("span",{class:"opt-check"},[txt("\u2705")])
+    ]);
+    grid.appendChild(optEl);
+  });
+  card.appendChild(grid);
+
+  var err = el("div",{class:"error-text show",id:"quiz-err",style:"display:none;"},[txt("Pick an answer to continue.")]);
+  card.appendChild(err);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){
+    if(state.qIndex===0){ goHome(); return; } else { state.qIndex--; }
+    render();
+  }},[txt("Back")]));
+  var isLast = state.qIndex === QUESTIONS.length-1;
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    if(!state.answers[state.qIndex]){
+      document.getElementById("quiz-err").style.display="block";
+      return;
+    }
+    if(isLast){
+      state.screen="loading"; render();
+      state.result = computeResult(state.answers);
+      updateStudentResult(state.result).then(function(){
+        setTimeout(function(){
+          state.screen="result"; render();
+        }, 900);
+      });
+    } else {
+      state.qIndex++; render();
+    }
+  }},[txt(isLast ? "See my results \u2192" : "Next \u2192")]));
+  card.appendChild(row);
+  root.appendChild(card);
+}
+
+function renderLoadingScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(trail(2,0,{current:QUESTIONS.length,total:QUESTIONS.length}));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"loading-wrap"},[
+    el("div",{class:"spinner"}),
+    el("div",{class:"loading-msg"},[txt("Checking your answers and finding your learning style\u2026")])
+  ]));
+  root.appendChild(card);
+}
+
+/* ---- student: result ---- */
+function renderResultScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("You did it, "+(state.demo.name||"friend")+"! Here's what I found out about you."));
+  root.appendChild(trail(3, 3));
+  var r = state.result;
+  var card = el("div",{class:"card"});
+
+  var confetti = el("div",{class:"confetti-strip"});
+  var palette = ["var(--visual)","var(--auditory)","var(--readwrite)","var(--kinesthetic)"];
+  for(var i=0;i<18;i++){
+    confetti.appendChild(el("div",{class:"confetti-piece",style:"left:"+(i*5.5)+"%;background:"+palette[i%4]+";animation-delay:"+(i*0.05)+"s;"}));
+  }
+  card.appendChild(confetti);
+
+  card.appendChild(el("div",{class:"eyebrow"},[txt((state.demo.name||"Your")+"'S RESULT")]));
+  card.appendChild(el("h2",{style:"margin-top:6px;font-size:24px;"},[txt("Great job walking the trail!")]));
+
+  var row = el("div",{class:"badge-row",style:"margin-top:16px;"});
+  row.appendChild(el("div",{class:"style-badge "+r.style},[txt(STYLE_ICON[r.style]+" "+STYLE_NAMES[r.style]+" learner")]));
+  row.appendChild(el("div",{class:"confidence"},[txt("CONFIDENCE: "+r.confidence+"%")]));
+  card.appendChild(row);
+
+  var bars = el("div",{class:"bar-list"});
+  ["V","A","R","K"].forEach(function(s){
+    var pct = r.pct[s];
+    bars.appendChild(el("div",{class:"bar-row"},[
+      el("div",{class:"bar-label"},[txt(STYLE_NAMES[s])]),
+      el("div",{class:"bar-track"},[el("div",{class:"bar-fill "+s, style:"width:"+pct+"%"})]),
+      el("div",{class:"bar-pct"},[txt(pct+"%")])
+    ]));
+  });
+  card.appendChild(bars);
+
+  var recoGrid = el("div",{class:"reco-grid"});
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("For you")]),
+    el("p",{},[txt(RECS[r.style].kid)])
+  ]));
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("For your teacher")]),
+    el("p",{},[txt(RECS[r.style].adult)])
+  ]));
+  card.appendChild(recoGrid);
+
+  card.appendChild(el("div",{class:"save-note"},[txt("\u2713  Saved \u2014 your "+state.demo.grade+" teacher can see this on their dashboard right away")]));
+
+  var btnRow = el("div",{class:"btn-row"});
+  btnRow.appendChild(el("button",{class:"btn btn-ghost",onclick:goHome},[txt(state.studentLoggedIn ? "\uD83D\uDD13 Log out" : "\u2190 Back to start")]));
+  if(state.studentLoggedIn){
+    btnRow.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+      state.screen="studentHome"; render();
+    }},[txt("Go to my dashboard \u2192")]));
+  }
+  card.appendChild(btnRow);
+  root.appendChild(card);
+}
+
+/* ---- teacher: login ---- */
+function renderLoginScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Hello! Log in below to open your dashboard."));
+  var card = el("div",{class:"card login-wrap"});
+  card.appendChild(el("span",{class:"login-icon"},[txt("\uD83D\uDD10")]));
+  card.appendChild(el("h2",{style:"text-align:center;"},[txt("Teacher login")]));
+  card.appendChild(el("p",{style:"text-align:center;font-size:13px;"},[txt("Log in to see your class and student results.")]));
+
+  var wrap = el("div",{style:"margin-top:18px;"});
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Email")]), el("input",{type:"email",id:"t-email",placeholder:"e.g. j.delacruz@deped.gov.ph"})]));
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Password")]), el("input",{type:"password",id:"t-pass",placeholder:"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"})]));
+  wrap.appendChild(el("div",{class:"forgot-link",onclick:function(){ state.authErrorMsg=""; state.screen="forgotPassword"; render(); }},[txt("Forgot password?")]));
+  if(state.authErrorMsg){
+    wrap.appendChild(el("div",{class:"error-text show"},[txt(state.authErrorMsg)]));
+  }
+  card.appendChild(wrap);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:goHome},[txt("Back")]));
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    var email=document.getElementById("t-email").value.trim();
+    var pass=document.getElementById("t-pass").value;
+    if(!email || !pass){
+      state.authErrorMsg = "Please enter your email and password."; render(); return;
+    }
+    state.loadingMessage = "Logging you in\u2026";
+    state.screen = "authLoading"; render();
+    api("/auth/login", { method:"POST", body: JSON.stringify({email:email, password:pass}) }).then(function(res){
+      if(res.error || res.role !== "teacher"){
+        state.screen="login"; state.authErrorMsg = res.error || "That account isn't a teacher account."; render(); return;
+      }
+      loadTeacherSession(res.token, res.profile);
+    });
+  }},[txt("Log in")]));
+  card.appendChild(row);
+  card.appendChild(el("div",{style:"text-align:center;margin-top:16px;font-size:12.5px;"},[
+    txt("New here? "),
+    el("span",{class:"forgot-link",style:"margin:0;display:inline;",onclick:function(){ state.authErrorMsg=""; state.signupSuccess=false; state.screen="signup"; render(); }},[txt("Create a teacher account")])
+  ]));
+  root.appendChild(card);
+}
+
+/* ---- teacher: sign up ---- */
+function renderSignupScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Great to have you! A few details and your dashboard is ready."));
+  var card = el("div",{class:"card login-wrap"});
+  card.appendChild(el("span",{class:"login-icon"},[txt("\uD83C\uDF93")]));
+  card.appendChild(el("h2",{style:"text-align:center;"},[txt("Create teacher account")]));
+  card.appendChild(el("p",{style:"text-align:center;font-size:13px;"},[txt("Sign up once, then log in anytime to see your class.")]));
+
+  var wrap = el("div",{style:"margin-top:18px;"});
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Full name")]), el("input",{type:"text",id:"su-name",placeholder:"e.g. Juana Dela Cruz"})]));
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Email")]), el("input",{type:"email",id:"su-email",placeholder:"e.g. j.delacruz@deped.gov.ph"})]));
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Password")]), el("input",{type:"password",id:"su-pass",placeholder:"At least 6 characters"})]));
+  var schoolSel = el("select",{id:"su-school"},[el("option",{value:""},[txt("Select your school")])]);
+  SCHOOLS.forEach(function(s){ schoolSel.appendChild(el("option",{value:s},[txt(s)])); });
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("School")]), schoolSel]));
+  var gradeSel = el("select",{id:"su-grade"},[el("option",{value:""},[txt("Select the grade level you teach")])]);
+  GRADES.forEach(function(g){ gradeSel.appendChild(el("option",{value:g},[txt(g)])); });
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Grade level you teach")]), gradeSel]));
+
+  if(state.signupSuccess){
+    wrap.appendChild(el("div",{class:"reset-note"},[txt("\u2713 Account created! Check your email to confirm it, then come back and log in.")]));
+  }
+  if(state.authErrorMsg){
+    wrap.appendChild(el("div",{class:"error-text show"},[txt(state.authErrorMsg)]));
+  }
+  card.appendChild(wrap);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ state.authErrorMsg=""; state.signupSuccess=false; state.screen="login"; render(); }},[txt("\u2190 Back to login")]));
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    var name=document.getElementById("su-name").value.trim();
+    var email=document.getElementById("su-email").value.trim();
+    var pass=document.getElementById("su-pass").value;
+    var school=document.getElementById("su-school").value;
+    var grade=document.getElementById("su-grade").value;
+    if(!name||!email||!pass||!school||!grade){
+      state.authErrorMsg="Please fill in every field."; render(); return;
+    }
+    state.loadingMessage="Creating your account\u2026";
+    state.screen="authLoading"; render();
+    api("/auth/signup/teacher", {
+      method:"POST",
+      body: JSON.stringify({ name:name, email:email, password:pass, school:school, grade:grade })
+    }).then(function(res){
+      if(res.error){
+        state.screen="signup"; state.authErrorMsg=res.error; render(); return;
+      }
+      loadTeacherSession(res.token, res.profile);
+    });
+  }},[txt("Create account")]));
+  card.appendChild(row);
+  root.appendChild(card);
+}
+
+/* ---- forgot password (shared by teachers & students) ---- */
+function renderForgotPasswordScreen(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("No worries \u2014 let's get you a new password."));
+  var card = el("div",{class:"card login-wrap"});
+  card.appendChild(el("span",{class:"login-icon"},[txt("\uD83D\uDCE9")]));
+  card.appendChild(el("h2",{style:"text-align:center;"},[txt("Reset your password")]));
+  card.appendChild(el("p",{style:"text-align:center;font-size:13px;"},[txt("Enter your account email and we'll send you a reset link.")]));
+
+  var wrap = el("div",{style:"margin-top:18px;"});
+  wrap.appendChild(el("div",{class:"field"},[el("label",{},[txt("Email")]), el("input",{type:"email",id:"fp-email",placeholder:"e.g. j.delacruz@deped.gov.ph"})]));
+
+  if(state.resetSent){
+    wrap.appendChild(el("div",{class:"reset-note"},[txt("\u2713 If an account exists with that email, a reset link is on its way. Check your inbox (and spam folder).")]));
+  }
+  if(state.authErrorMsg){
+    wrap.appendChild(el("div",{class:"error-text show"},[txt(state.authErrorMsg)]));
+  }
+  card.appendChild(wrap);
+
+  var row = el("div",{class:"btn-row"});
+  row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ state.resetSent=false; state.authErrorMsg=""; state.screen="login"; render(); }},[txt("\u2190 Back to login")]));
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){
+    var email=document.getElementById("fp-email").value.trim();
+    if(!email){ state.authErrorMsg="Please enter your email."; render(); return; }
+    state.loadingMessage="Sending reset link\u2026";
+    state.screen="authLoading"; render();
+    api("/auth/forgot-password", { method:"POST", body: JSON.stringify({email:email}) }).then(function(res){
+      state.screen="forgotPassword";
+      if(res.error){ state.authErrorMsg=res.error; } else { state.resetSent=true; state.authErrorMsg=""; }
+      render();
+    });
+  }},[txt("Send reset link")]));
+  card.appendChild(row);
+  root.appendChild(card);
+}
+
+/* ---- teacher: home / choose view ---- */
+function renderTeacherHome(root){
+  root.appendChild(topbar(goHome));
+  root.appendChild(mascot("Welcome back"+(state.teacherName ? ", "+state.teacherName.split(" ")[0] : "")+"! Here's your class."));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"dash-head dash-hero"},[
+    el("div",{},[
+      el("div",{class:"eyebrow"},[txt("TEACHER DASHBOARD \u00B7 "+state.teacherGrade.toUpperCase())]),
+      el("h2",{style:"margin-top:6px;"},[txt("Welcome back"+(state.teacherName ? ", "+state.teacherName.split(" ")[0] : ""))]),
+      el("p",{style:"margin-top:4px;font-size:13px;"},[txt("You're viewing "+state.teacherGrade+" at "+state.teacherSchool+" only \u2014 other schools and grade levels are not shown.")])
+    ]),
+    el("div",{class:"home-link",onclick:goHome},[txt("Log out")])
+  ]));
+  var snapRoster = gradeRoster();
+  if(snapRoster.length){
+    var snap = el("div",{class:"snap"});
+    var counts = {V:0,A:0,R:0,K:0};
+    snapRoster.forEach(function(r){ if(counts[r.style]!==undefined) counts[r.style]++; });
+    var activeStyle = null, query = "";
+    var maxCount = Math.max(counts.V,counts.A,counts.R,counts.K);
+    var topKeys = ["V","A","R","K"].filter(function(k){ return counts[k]===maxCount; });
+    var topKey = (maxCount>0 && topKeys.length===1) ? topKeys[0] : null;
+    var results = el("div",{class:"snap-results"});
+    var chipEls = {};
+    var search = el("input",{class:"snap-search",type:"search",placeholder:"\uD83D\uDD0D Find a student by name\u2026","aria-label":"Find a student"});
+    function paintResults(){
+      while(results.firstChild) results.removeChild(results.firstChild);
+      if(!activeStyle && !query) return;
+      var q = query.toLowerCase();
+      var hits = snapRoster.filter(function(r){
+        return (!activeStyle || r.style===activeStyle) && (!q || (r.name||"").toLowerCase().indexOf(q)!==-1);
+      }).sort(function(a,b){ return (a.name||"").localeCompare(b.name||""); });
+      if(!hits.length){ results.appendChild(el("div",{class:"snap-more"},[txt("No matching students.")])); return; }
+      hits.slice(0,6).forEach(function(r){ results.appendChild(rosterRow(r)); });
+      if(hits.length>6) results.appendChild(el("div",{class:"snap-more",onclick:function(){ state.screen="studentPicker"; render(); }},[txt("+ "+(hits.length-6)+" more \u2014 see full list \u2192")]));
+    }
+    var chips = el("div",{class:"snap-chips"});
+    ["V","A","R","K"].forEach(function(k){
+      var num = el("div",{class:"snap-num"},[txt("0")]);
+      var chip = el("div",{class:"snap-chip "+k+(topKey===k?" top":""),role:"button",tabindex:"0",onclick:function(){
+        activeStyle = (activeStyle===k) ? null : k;
+        Object.keys(chipEls).forEach(function(x){ chipEls[x].className = "snap-chip "+x+(topKey===x?" top":"")+(activeStyle===x?" on":""); });
+        paintResults();
+      }},[num, el("div",{class:"snap-lbl"},[txt(STYLE_ICON[k]+" "+STYLE_NAMES[k])])]);
+      chip.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); chip.click(); } });
+      chipEls[k] = chip;
+      chips.appendChild(chip);
+      var target = counts[k];
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(still || !target){ num.textContent = target; }
+      else {
+        var t0 = null;
+        (function step(ts){
+          if(t0===null) t0 = ts;
+          var p = Math.min((ts-t0)/700,1);
+          num.textContent = Math.round(target*(1-Math.pow(1-p,3)));
+          if(p<1) requestAnimationFrame(step);
+        })(performance.now());
+      }
+    });
+    search.addEventListener("input",function(){ query = search.value.trim(); paintResults(); });
+    snap.appendChild(el("p",{style:"margin:0 0 10px;font-size:13px;"},[txt(snapRoster.length+" student"+(snapRoster.length===1?"":"s")+" finished the quiz \u2014 tap a style to see who.")]));
+    snap.appendChild(chips);
+    snap.appendChild(search);
+    snap.appendChild(results);
+    card.appendChild(snap);
+  }
+  var grid = el("div",{class:"option-grid"});
+  grid.appendChild(el("div",{class:"option-card",onclick:function(){ state.screen="classDash"; render(); }},[
+    el("div",{class:"icon"},[txt("\uD83D\uDCCA")]),
+    el("h3",{},[txt("Class dashboard")]),
+    el("p",{},[txt("See the VARK distribution across your "+state.teacherGrade+" class and get whole-class teaching tips.")])
+  ]));
+  grid.appendChild(el("div",{class:"option-card",onclick:function(){ state.screen="studentPicker"; render(); }},[
+    el("div",{class:"icon"},[txt("\uD83E\uDDD2")]),
+    el("h3",{},[txt("Individual student")]),
+    el("p",{},[txt("Look up one "+state.teacherGrade+" student's predicted learning style and recommendations.")])
+  ]));
+  grid.appendChild(el("div",{class:"option-card",onclick:function(){ state.screen="modelPerf"; state.modelPerf=null; render(); }},[
+    el("div",{class:"icon"},[txt("\uD83C\uDFAF")]),
+    el("h3",{},[txt("Model performance")]),
+    el("p",{},[txt("See how accurate Landas's learning style predictions are, based on teacher confirmations.")])
+  ]));
+  card.appendChild(grid);
+  root.appendChild(card);
+}
+
+/* ---- teacher: model performance ---- */
+function renderModelPerf(root){
+  root.appendChild(topbar(goHome));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
+  card.appendChild(el("h2",{},[txt("Model performance")]));
+  if(!state.modelPerf){
+    card.appendChild(el("p",{},[txt("Loading\u2026")]));
+    api("/model/metrics",{method:"GET"}).then(function(res){
+      state.modelPerf = res.error ? {error:res.error} : res;
+      if(state.screen==="modelPerf") render();
+    });
+    root.appendChild(card);
+    return;
+  }
+  var d = state.modelPerf;
+  if(d.error){ card.appendChild(el("p",{},[txt(d.error)])); root.appendChild(card); return; }
+  card.appendChild(el("p",{},[txt(d.with_answers+" students have saved answers \u00B7 "+d.labeled+" confirmed by a teacher.")]));
+  var m = d.metrics;
+  if(!m){
+    card.appendChild(el("div",{class:"reco-card"},[
+      el("h3",{},[txt("No evaluation has been run yet")]),
+      el("p",{},[txt("Once enough students have been confirmed by their teachers, the evaluation can be run and the results will appear here.")])
+    ]));
+    root.appendChild(card); return;
+  }
+  function pct(v){ return (v*100).toFixed(1)+"%"; }
+  var cards = el("div",{class:"reco-grid"},[]);
+  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Accuracy")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.accuracy))]),el("p",{},[txt("Best model: "+m.best_model)])]));
+  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Macro F1-score")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.macro_f1))]),el("p",{},[txt("Tested on "+m.n_test+" students (trained on "+m.n_train+")")])]));
+  card.appendChild(cards);
+  var tbl = el("table",{style:"width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;"},[]);
+  function tr(cells,head){ var r=el("tr",{},[]); cells.forEach(function(c){ r.appendChild(el(head?"th":"td",{style:"text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);"},[txt(String(c))])); }); return r; }
+  tbl.appendChild(tr(["Style","Precision","Recall","F1-score","Students"],true));
+  m.labels.forEach(function(k){ var c=m.per_class[k]; tbl.appendChild(tr([STYLE_NAMES[k],pct(c.precision),pct(c.recall),pct(c["f1-score"]),c.support])); });
+  card.appendChild(tbl);
+  card.appendChild(el("h3",{style:"margin-top:20px;"},[txt("Confusion matrix (rows = teacher's label, columns = prediction)")]));
+  var grid = el("table",{style:"border-collapse:collapse;margin-top:8px;font-size:13px;text-align:center;"},[]);
+  var head = el("tr",{},[el("th",{},[])]);
+  m.labels.forEach(function(k){ head.appendChild(el("th",{style:"padding:6px 10px;"},[txt(STYLE_NAMES[k])])); });
+  grid.appendChild(head);
+  var max = 1; m.confusion_matrix.forEach(function(r){ r.forEach(function(v){ if(v>max) max=v; }); });
+  m.confusion_matrix.forEach(function(row,i){
+    var r = el("tr",{},[el("th",{style:"padding:6px 10px;text-align:right;"},[txt(STYLE_NAMES[m.labels[i]])])]);
+    row.forEach(function(v,j){
+      var a = (v/max*0.7).toFixed(2);
+      r.appendChild(el("td",{style:"padding:10px 14px;border:1px solid var(--line);background:rgba(91,79,233,"+a+");font-weight:"+(i===j?"700":"400")+";"},[txt(String(v))]));
+    });
+    grid.appendChild(r);
+  });
+  card.appendChild(grid);
+  card.appendChild(el("p",{style:"margin-top:14px;font-size:12px;color:var(--ink-faint);"},[txt("Evaluated on "+m.generated_at.slice(0,10)+". "+m.note)]));
+  root.appendChild(card);
+}
+
+/* ---- teacher: class dashboard ---- */
+function renderClassDash(root){
+  root.appendChild(topbar(goHome));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
+  card.appendChild(el("div",{class:"forgot-link",style:"float:right;margin-top:-2px;",onclick:function(){ refreshRoster("classDash"); }},[txt("\uD83D\uDD04 Refresh")]));
+  var fullRoster = gradeRoster();
+  var sections = fullRoster.map(function(s){return s.section;}).filter(function(s,i,arr){ return s && arr.indexOf(s) === i; });
+
+  if(sections.length > 1 && state.classDashSection && sections.indexOf(state.classDashSection) === -1){
+    state.classDashSection = null;
+  }
+  var roster = state.classDashSection ? fullRoster.filter(function(s){ return s.section === state.classDashSection; }) : fullRoster;
+
+  card.appendChild(el("h2",{},[txt(state.teacherGrade+" VARK distribution")]));
+  card.appendChild(el("p",{},[txt(roster.length+" students \u00B7 "+state.teacherSchool+" \u00B7 "+state.teacherGrade+(sections.length ? " \u00B7 "+sections.join(", ") : ""))]));
+
+  if(sections.length > 1){
+    var tabs = el("div",{class:"section-tabs"});
+    tabs.appendChild(el("div",{class:"section-tab"+(!state.classDashSection?" active":""),onclick:function(){ state.classDashSection=null; render(); }},[txt("All sections")]));
+    sections.forEach(function(sec){
+      tabs.appendChild(el("div",{class:"section-tab"+(state.classDashSection===sec?" active":""),onclick:function(){ state.classDashSection=sec; render(); }},[txt(sec)]));
+    });
+    card.appendChild(tabs);
+  }
+
+  var dist = classDistribution(roster);
+  var bars = el("div",{class:"bar-list class-chart"});
+  ["V","A","R","K"].forEach(function(s){
+    bars.appendChild(el("div",{class:"bar-row"},[
+      el("div",{class:"bar-label"},[txt(STYLE_ICON[s]+" "+STYLE_NAMES[s])]),
+      el("div",{class:"bar-track"},[el("div",{class:"bar-fill "+s, style:"width:"+dist[s]+"%"})]),
+      el("div",{class:"bar-pct"},[txt(dist[s]+"%")])
+    ]));
+  });
+  card.appendChild(bars);
+
+  if(!state.classDashSection && sections.length > 1){
+    /* "All sections" view: also break the distribution down per section,
+       since the combined chart above blends sections together and hides
+       differences between them. */
+    var breakdownGrid = el("div",{class:"section-breakdown-grid"});
+    sections.forEach(function(sec){
+      var secRoster = roster.filter(function(s){ return s.section === sec; });
+      if(!secRoster.length) return;
+      var secDist = classDistribution(secRoster);
+      var miniCard = el("div",{class:"section-mini-card"});
+      miniCard.appendChild(el("h3",{},[txt(sec+" ("+secRoster.length+")")]));
+      var miniBars = el("div",{class:"bar-list"});
+      ["V","A","R","K"].forEach(function(s){
+        miniBars.appendChild(el("div",{class:"bar-row sm"},[
+          el("div",{class:"bar-label"},[txt(STYLE_ICON[s]+" "+STYLE_NAMES[s])]),
+          el("div",{class:"bar-track sm"},[el("div",{class:"bar-fill "+s, style:"width:"+secDist[s]+"%"})]),
+          el("div",{class:"bar-pct"},[txt(secDist[s]+"%")])
+        ]));
+      });
+      miniCard.appendChild(miniBars);
+      breakdownGrid.appendChild(miniCard);
+    });
+    card.appendChild(el("h3",{style:"margin-top:22px;font-size:14px;color:var(--ink-soft);"},[txt("By section")]));
+    card.appendChild(breakdownGrid);
+  }
+
+  var top1 = Object.keys(dist).sort(function(a,b){return dist[b]-dist[a];})[0];
+  var top2 = Object.keys(dist).sort(function(a,b){return dist[b]-dist[a];})[1];
+  var recoGrid = el("div",{class:"reco-grid"});
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("Most common: "+STYLE_NAMES[top1])]),
+    el("p",{},[txt(RECS[top1].adult)])
+  ]));
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("Also common: "+STYLE_NAMES[top2])]),
+    el("p",{},[txt(RECS[top2].adult)])
+  ]));
+  card.appendChild(recoGrid);
+  card.appendChild(el("div",{class:"reco-card",style:"margin-top:14px;"},[
+    el("h3",{},[txt("Whole-class tip")]),
+    el("p",{},[txt("Since your class mixes several learning styles, try presenting new lessons two ways at once \u2014 for example, pair a diagram with a hands-on activity, or read instructions aloud while writing them on the board. This reaches "+STYLE_NAMES[top1]+" and "+STYLE_NAMES[top2]+" learners together without leaving the rest behind.")])
+  ]));
+
+  card.appendChild(el("h3",{style:"margin-top:26px;font-size:14px;color:var(--ink-soft);"},[txt("Roster")]));
+  var rosterList = el("div",{class:"roster"});
+
+  if(!state.classDashSection && sections.length > 1){
+    /* No single section chosen: group the roster visually by section
+       instead of one flat mixed list, so two sections stay distinguishable. */
+    var groups = {};
+    var noSectionGroup = [];
+    roster.forEach(function(s){
+      if(s.section){ (groups[s.section] = groups[s.section] || []).push(s); }
+      else { noSectionGroup.push(s); }
+    });
+    sections.forEach(function(sec){
+      if(!groups[sec] || !groups[sec].length) return;
+      rosterList.appendChild(el("div",{class:"section-group-title"},[txt(sec+" ("+groups[sec].length+")")]));
+      groups[sec].forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+    });
+    if(noSectionGroup.length){
+      rosterList.appendChild(el("div",{class:"section-group-title"},[txt("No section ("+noSectionGroup.length+")")]));
+      noSectionGroup.forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+    }
+  } else {
+    roster.forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+  }
+  card.appendChild(rosterList);
+  root.appendChild(card);
+}
+
+function rosterRow(s){
+  return el("div",{class:"roster-row",onclick:function(){ state.selectedStudent=s; state.screen="studentProfile"; render(); }},[
+    el("div",{},[
+      el("div",{class:"roster-name"},[txt(s.name), s.isNew ? el("span",{class:"new-tag"},[txt("NEW")]) : null]),
+      el("div",{class:"roster-meta"},[txt(gradeSectionLine(s))])
+    ]),
+    el("div",{class:"mini-badge "+s.style},[txt(STYLE_NAMES[s.style])])
+  ]);
+}
+
+/* ---- teacher: student picker ---- */
+function renderStudentPicker(root){
+  root.appendChild(topbar(goHome));
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
+  card.appendChild(el("div",{class:"forgot-link",style:"float:right;margin-top:-2px;",onclick:function(){ refreshRoster("studentPicker"); }},[txt("\uD83D\uDD04 Refresh")]));
+  card.appendChild(el("h2",{},[txt("Select a "+state.teacherGrade+" student")]));
+  card.appendChild(el("p",{},[txt("Pick a name to view their predicted learning style and recommendations.")]));
+  var gRoster = gradeRoster();
+  var gSections = gRoster.map(function(s){return s.section;}).filter(function(s,i,arr){ return s && arr.indexOf(s) === i; });
+  var rosterList = el("div",{class:"roster",style:"margin-top:18px;"});
+
+  if(gSections.length > 1){
+    var groups = {};
+    var noSectionGroup = [];
+    gRoster.forEach(function(s){
+      if(s.section){ (groups[s.section] = groups[s.section] || []).push(s); }
+      else { noSectionGroup.push(s); }
+    });
+    gSections.forEach(function(sec){
+      if(!groups[sec] || !groups[sec].length) return;
+      rosterList.appendChild(el("div",{class:"section-group-title"},[txt(sec+" ("+groups[sec].length+")")]));
+      groups[sec].forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+    });
+    if(noSectionGroup.length){
+      rosterList.appendChild(el("div",{class:"section-group-title"},[txt("No section ("+noSectionGroup.length+")")]));
+      noSectionGroup.forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+    }
+  } else {
+    gRoster.forEach(function(s){ rosterList.appendChild(rosterRow(s)); });
+  }
+  card.appendChild(rosterList);
+  root.appendChild(card);
+}
+
+/* ---- teacher: student profile ---- */
+function renderStudentProfile(root){
+  root.appendChild(topbar(goHome));
+  var s = state.selectedStudent;
+  var card = el("div",{class:"card"});
+  card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
+  card.appendChild(el("div",{class:"profile-head"},[
+    el("div",{},[
+      el("h2",{},[txt(s.name)]),
+      el("div",{class:"profile-meta"},[txt(gradeSectionLine(s))])
+    ]),
+    el("div",{class:"style-badge "+s.style},[txt(STYLE_ICON[s.style]+" "+STYLE_NAMES[s.style]+" learner")])
+  ]));
+  card.appendChild(el("div",{class:"confidence",style:"margin-top:10px;"},[txt("CONFIDENCE: "+s.conf+"%")]));
+
+  var recoGrid = el("div",{class:"reco-grid"});
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("Teaching recommendation")]),
+    el("p",{},[txt(RECS[s.style].adult)])
+  ]));
+  recoGrid.appendChild(el("div",{class:"reco-card"},[
+    el("h3",{},[txt("How "+s.name.split(" ")[0]+" experiences it")]),
+    el("p",{},[txt(RECS[s.style].kid)])
+  ]));
+  card.appendChild(recoGrid);
+  card.appendChild(labelBox(s));
+  root.appendChild(card);
+}
+
+/* Teacher confirms (or corrects) the predicted style. These answers are the
+   "true labels" used to measure how accurate the predictions are. */
+function labelBox(s){
+  var first = s.name.split(" ")[0];
+  var box = el("div",{class:"reco-card",style:"margin-top:14px;"},[]);
+  box.appendChild(el("h3",{},[txt("Does this match what you observe in class?")]));
+  var msg = el("p",{style:"margin:6px 0 10px;"},[txt(s.label
+    ? "Saved: you recorded "+first+" as a "+STYLE_NAMES[s.label]+" learner. You can change it below."
+    : "Your answer helps check how accurate Landas's predictions are.")]);
+  box.appendChild(msg);
+  var row = el("div",{style:"display:flex;flex-wrap:wrap;gap:8px;"},[]);
+  function save(label){
+    msg.textContent = "Saving\u2026";
+    api("/students/"+s.id+"/label",{method:"PUT",body:JSON.stringify({label:label})}).then(function(res){
+      if(res.error){ msg.textContent = res.error; return; }
+      s.label = label;
+      (state.cachedRoster||[]).forEach(function(r){ if(r.id===s.id) r.label = label; });
+      render();
+    });
+  }
+  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){ save(s.style); }},[txt("\u2713 Yes, it matches")]));
+  ["V","A","R","K"].filter(function(k){ return k!==s.style; }).forEach(function(k){
+    row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ save(k); }},[txt("Actually "+STYLE_NAMES[k])]));
+  });
+  box.appendChild(row);
+  return box;
+}
+
+/* Decorative floating shapes in the background — purely visual, fills
+   the empty side margins on wide screens with a gentle kid-friendly float.
+   Appended once, outside #app, so re-renders never disturb it. */
+function setupBackgroundDecor(){
+  var wrap = el("div",{class:"bg-decor"});
+  var shapes = ["\u2601\uFE0F","\u2B50","\u2728","\uD83C\uDF08","\uD83C\uDF1F","\uD83C\uDF88","\uD83E\uDD8B","\uD83C\uDF3C","\uD83E\uDE81","\u2600\uFE0F","\u2601\uFE0F","\u2B50"];
+  var positions = [
+    {top:"5%",left:"3%",size:"40px"},{top:"14%",left:"93%",size:"46px"},{top:"34%",left:"5%",size:"32px"},
+    {top:"50%",left:"91%",size:"40px"},{top:"68%",left:"3%",size:"44px"},{top:"84%",left:"94%",size:"36px"},
+    {top:"26%",left:"48%",size:"26px"},{top:"96%",left:"46%",size:"38px"},
+    {top:"8%",left:"46%",size:"30px"},{top:"60%",left:"50%",size:"24px"},
+    {top:"42%",left:"96%",size:"34px"},{top:"78%",left:"48%",size:"28px"}
+  ];
+  positions.forEach(function(pos, i){
+    wrap.appendChild(el("div",{class:"bg-shape",style:"top:"+pos.top+";left:"+pos.left+";font-size:"+pos.size+";animation-delay:"+(i*0.55)+"s;animation-duration:"+(8+i%4)+"s;"},[txt(shapes[i % shapes.length])]));
+  });
+  document.body.appendChild(wrap);
+}
+
+/* Small celebration burst of stars/sparkles near a clicked element —
+   used to make picking a quiz answer feel like a tiny win, not just a
+   static state change. */
+function celebrateBurst(originEl){
+  var rect = originEl.getBoundingClientRect();
+  var layer = document.createElement("div");
+  layer.style.position = "fixed";
+  layer.style.left = "0"; layer.style.top = "0"; layer.style.pointerEvents = "none"; layer.style.zIndex = "999";
+  var bits = ["\u2728","\u2B50","\uD83C\uDF1F","\uD83D\uDC96"];
+  for(var i=0;i<6;i++){
+    var b = document.createElement("span");
+    b.textContent = bits[i % bits.length];
+    b.style.position = "absolute";
+    b.style.top = (rect.top + rect.height/2) + "px";
+    b.style.fontSize = "18px";
+    b.style.transform = "translate(-50%,-50%)";
+    b.style.animation = "confettiFall "+(0.7+Math.random()*0.4)+"s ease-out forwards";
+    b.style.left = (rect.left + rect.width/2 + (Math.random()-0.5)*70) + "px";
+    layer.appendChild(b);
+  }
+  document.body.appendChild(layer);
+  setTimeout(function(){ layer.remove(); }, 1200);
+}
+
+setupBackgroundDecor();
+render();
+</script>
+</body>
+</html>
