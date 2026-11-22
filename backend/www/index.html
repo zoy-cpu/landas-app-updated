@@ -1,3 +1,4 @@
+ex
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,7 +353,7 @@
   .snap-more{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);cursor:pointer;padding:4px 2px;}
   .snap-more:hover{color:var(--ink);}
   @media (prefers-reduced-motion:reduce){.snap-results .roster-row{animation:none;}.snap-chip{transition:none;}}
-  
+
   .dash-hero{background:linear-gradient(120deg,var(--visual-soft) 0%,var(--readwrite-soft) 100%);border:1px solid var(--line);border-left:6px solid var(--visual);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:0 6px 18px rgba(91,79,233,0.10);}
   .snap-chip{position:relative;border-width:2px;}
   .snap-chip.V{border-color:var(--visual);background:var(--visual-soft);} .snap-chip.V .snap-num{color:var(--visual-deep);}
@@ -367,20 +368,8 @@
 <div id="app"></div>
 
 <script>
-/* ================= BACKEND API SETUP =================
-   This frontend is served by the same Express server that exposes
-   the API (see server.js — express.static + app.use('/api/...')),
-   so a relative path always resolves to the current origin:
-     - locally:     http://localhost:4000/api
-     - in production: https://landas-app.onrender.com/api
-   No need to hardcode a host here.
-==================================================== */
 var API_BASE = "/api";
 
-/* Thin fetch wrapper: attaches the JWT (when present), parses JSON,
-   and turns a non-2xx response into a rejected promise carrying the
-   server's { error } message, so callers can do res.error the same
-   way they used to check Supabase's res.error. */
 var authToken = null;
 function api(path, options){
   options = options || {};
@@ -397,7 +386,6 @@ function api(path, options){
       return { error: "Could not reach the server. Check your connection and that the backend is running." };
     });
 }
-
 
 /* ================= data ================= */
 var STYLE_NAMES = {V:"Visual", A:"Auditory", R:"Read/Write", K:"Kinesthetic"};
@@ -522,7 +510,6 @@ var state = {
   currentStudent: null,
   currentUser: null,
   cachedRoster: [],
-  revealed: {},
   classDashSection: null,
   loadingMessage: "",
   authErrorMsg: "",
@@ -541,13 +528,11 @@ function gradeRoster(){
   return state.cachedRoster || [];
 }
 
-/* Only students who have completed the quiz show up on a teacher's roster.
-   The backend scopes this to the logged-in teacher's own school+grade. */
 function fetchRoster(){
   return api("/students/roster", { method: "GET" }).then(function(res){
     if(res.error){ console.error(res.error); return []; }
     return res.map(function(r){
-      return {id:r.id, label:r.teacher_label, name:r.name, school:r.school, grade:r.grade, section:r.section, style:r.style, conf:r.confidence, isNew: r.isNew};
+      return {id:r.id, name:r.name, school:r.school, grade:r.grade, section:r.section, style:r.style, conf:r.confidence, isNew: r.isNew};
     });
   });
 }
@@ -561,10 +546,6 @@ function refreshRoster(nextScreen){
   });
 }
 
-/* Called once, right after a logged-in student finishes the quiz.
-   Hits the backend's PUT /students/me/result, authenticated by the
-   student's own JWT — the server derives which row to update from the
-   token, so a student can only ever update their own result. */
 function updateStudentResult(result){
   if(!state.currentStudent) return Promise.resolve({error:"Not logged in."});
   return api("/students/me/result", {
@@ -573,7 +554,6 @@ function updateStudentResult(result){
   });
 }
 
-/* state.answers is {0:"V",1:"K",...}; the backend stores it as an ordered array of 16 letters. */
 function answersToArray(answers){
   var out = [];
   for(var i=0;i<QUESTIONS.length;i++) out.push(answers[i] || null);
@@ -600,10 +580,6 @@ function classDistribution(roster){
   return pct;
 }
 
-/* ---- shared post-auth session loaders ----
-   Called with the backend's { token, profile } response from either
-   /auth/login or /auth/signup/teacher — no extra round trip needed,
-   since the backend already returns the profile inline. */
 function loadTeacherSession(token, profile){
   authToken = token;
   state.teacherName = profile.name;
@@ -653,9 +629,6 @@ function toggleDrawer(force){
   render();
 }
 
-/* Navigation drawer: a slide-out panel (hamburger icon in the top bar)
-   that explains what Landas / the quiz is for and how to use the app,
-   plus quick links back to the student and teacher entry points. */
 function navDrawer(){
   var backdrop = el("div",{class:"drawer-backdrop"+(state.drawerOpen?" open":""),onclick:function(){ toggleDrawer(false); }});
   var panel = el("div",{class:"drawer-panel"+(state.drawerOpen?" open":"")});
@@ -801,7 +774,6 @@ function render(){
   else if(state.screen === "classDash") renderClassDash(root);
   else if(state.screen === "studentPicker") renderStudentPicker(root);
   else if(state.screen === "studentProfile") renderStudentProfile(root);
-  else if(state.screen === "modelPerf") renderModelPerf(root);
   navDrawer().forEach(function(node){ root.appendChild(node); });
 }
 
@@ -810,7 +782,7 @@ function goHome(){
   state.screen="start"; state.demo={name:"",age:"",school:"",grade:"",section:""}; state.answers={}; state.qIndex=0; state.result=null;
   state.teacherLoggedIn=false; state.teacherGrade=null; state.teacherSchool=null; state.teacherName=null;
   state.studentLoggedIn=false; state.currentStudent=null; state.currentUser=null;
-  state.cachedRoster=[]; state.revealed={}; state.resetSent=false; state.authErrorMsg=""; state.signupSuccess=false; state.classDashSection=null;
+  state.cachedRoster=[]; state.resetSent=false; state.authErrorMsg=""; state.signupSuccess=false; state.classDashSection=null;
   render();
 }
 
@@ -973,8 +945,6 @@ function renderStudentSignupScreen(root){
       if(res.error){
         state.screen="studentSignup"; state.authErrorMsg=res.error; render(); return;
       }
-      // No email confirmation step with our own backend — the account
-      // and row are created together, so we can log straight in.
       loadStudentSession(res.token, res.profile);
     });
   }},[txt("Create account")]));
@@ -1380,83 +1350,15 @@ function renderTeacherHome(root){
     el("h3",{},[txt("Individual student")]),
     el("p",{},[txt("Look up one "+state.teacherGrade+" student's predicted learning style and recommendations.")])
   ]));
-  grid.appendChild(el("div",{class:"option-card",onclick:function(){ state.screen="modelPerf"; state.modelPerf=null; render(); }},[
-    el("div",{class:"icon"},[txt("\uD83C\uDFAF")]),
-    el("h3",{},[txt("Model performance")]),
-    el("p",{},[txt("See how accurate Landas's learning style predictions are, based on teacher confirmations.")])
-  ]));
   card.appendChild(grid);
   root.appendChild(card);
 }
 
-/* ---- teacher: model performance ---- */
-function renderModelPerf(root){
-  root.appendChild(topbar(goHome));
-  var card = el("div",{class:"card"});
-  card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
-  card.appendChild(el("h2",{},[txt("Model performance")]));
-  if(!state.modelPerf){
-    card.appendChild(el("p",{},[txt("Loading\u2026")]));
-    api("/model/metrics",{method:"GET"}).then(function(res){
-      state.modelPerf = res.error ? {error:res.error} : res;
-      if(state.screen==="modelPerf") render();
-    });
-    root.appendChild(card);
-    return;
-  }
-  var d = state.modelPerf;
-  if(d.error){ card.appendChild(el("p",{},[txt(d.error)])); root.appendChild(card); return; }
-  card.appendChild(el("p",{},[txt(d.with_answers+" students have saved answers \u00B7 "+d.labeled+" confirmed by a teacher.")]));
-  var m = d.metrics;
-  if(!m){
-    card.appendChild(el("div",{class:"reco-card"},[
-      el("h3",{},[txt("No evaluation has been run yet")]),
-      el("p",{},[txt("Once enough students have been confirmed by their teachers, the evaluation can be run and the results will appear here.")])
-    ]));
-    root.appendChild(card); return;
-  }
-  function pct(v){ return (v*100).toFixed(1)+"%"; }
-  var cards = el("div",{class:"reco-grid"},[]);
-  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Accuracy")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.accuracy))]),el("p",{},[txt("Best model: "+m.best_model)])]));
-  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Macro F1-score")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.macro_f1))]),el("p",{},[txt(m.folds+"-fold cross-validation on "+m.n_total+" students")])]));
-  card.appendChild(cards);
-  var tbl = el("table",{style:"width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;"},[]);
-  function tr(cells,head){ var r=el("tr",{},[]); cells.forEach(function(c){ r.appendChild(el(head?"th":"td",{style:"text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);"},[txt(String(c))])); }); return r; }
-  tbl.appendChild(tr(["Style","Precision","Recall","F1-score","Students"],true));
-  m.labels.forEach(function(k){ var c=m.per_class[k]; tbl.appendChild(tr([STYLE_NAMES[k],pct(c.precision),pct(c.recall),pct(c["f1-score"]),c.support])); });
-  card.appendChild(tbl);
-  card.appendChild(el("h3",{style:"margin-top:20px;"},[txt("Confusion matrix (rows = teacher's label, columns = prediction)")]));
-  var grid = el("table",{style:"border-collapse:collapse;margin-top:8px;font-size:13px;text-align:center;"},[]);
-  var head = el("tr",{},[el("th",{},[])]);
-  m.labels.forEach(function(k){ head.appendChild(el("th",{style:"padding:6px 10px;"},[txt(STYLE_NAMES[k])])); });
-  grid.appendChild(head);
-  var max = 1; m.confusion_matrix.forEach(function(r){ r.forEach(function(v){ if(v>max) max=v; }); });
-  m.confusion_matrix.forEach(function(row,i){
-    var r = el("tr",{},[el("th",{style:"padding:6px 10px;text-align:right;"},[txt(STYLE_NAMES[m.labels[i]])])]);
-    row.forEach(function(v,j){
-      var a = (v/max*0.7).toFixed(2);
-      r.appendChild(el("td",{style:"padding:10px 14px;border:1px solid var(--line);background:rgba(91,79,233,"+a+");font-weight:"+(i===j?"700":"400")+";"},[txt(String(v))]));
-    });
-    grid.appendChild(r);
-  });
-  card.appendChild(grid);
-  card.appendChild(el("p",{style:"margin-top:14px;font-size:12px;color:var(--ink-faint);"},[txt("Evaluated on "+m.generated_at.slice(0,10)+". "+m.note)]));
-  root.appendChild(card);
+function styleBadgeFor(s){
+  return el("div",{class:"mini-badge "+s.style},[txt(STYLE_NAMES[s.style])]);
 }
 
 /* ---- teacher: class dashboard ---- */
-/* ---- blind labeling ----
-   The teacher must record the style THEY observe before seeing Landas's
-   prediction, so the "true label" is independent of the system. Until a
-   student is labeled (or the teacher taps "Not sure"), the predicted style is
-   hidden in the student list and on the student's page. */
-function canSeePrediction(s){ return !!(s.label || state.revealed[s.id]); }
-function styleBadgeFor(s){
-  return canSeePrediction(s)
-    ? el("div",{class:"mini-badge "+s.style},[txt(STYLE_NAMES[s.style])])
-    : el("div",{class:"mini-badge",style:"background:var(--line);color:var(--ink-soft);"},[txt("Needs your label")]);
-}
-
 function renderClassDash(root){
   root.appendChild(topbar(goHome));
   var card = el("div",{class:"card"});
@@ -1494,9 +1396,6 @@ function renderClassDash(root){
   card.appendChild(bars);
 
   if(!state.classDashSection && sections.length > 1){
-    /* "All sections" view: also break the distribution down per section,
-       since the combined chart above blends sections together and hides
-       differences between them. */
     var breakdownGrid = el("div",{class:"section-breakdown-grid"});
     sections.forEach(function(sec){
       var secRoster = roster.filter(function(s){ return s.section === sec; });
@@ -1540,8 +1439,6 @@ function renderClassDash(root){
   var rosterList = el("div",{class:"roster"});
 
   if(!state.classDashSection && sections.length > 1){
-    /* No single section chosen: group the roster visually by section
-       instead of one flat mixed list, so two sections stay distinguishable. */
     var groups = {};
     var noSectionGroup = [];
     roster.forEach(function(s){
@@ -1581,7 +1478,7 @@ function renderStudentPicker(root){
   card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
   card.appendChild(el("div",{class:"forgot-link",style:"float:right;margin-top:-2px;",onclick:function(){ refreshRoster("studentPicker"); }},[txt("\uD83D\uDD04 Refresh")]));
   card.appendChild(el("h2",{},[txt("Select a "+state.teacherGrade+" student")]));
-  card.appendChild(el("p",{},[txt("Pick a name. You'll first record the learning style you observe, then see Landas's prediction.")]));
+  card.appendChild(el("p",{},[txt("Pick a name to see their predicted learning style and teaching recommendations.")]));
   var gRoster = gradeRoster();
   var gSections = gRoster.map(function(s){return s.section;}).filter(function(s,i,arr){ return s && arr.indexOf(s) === i; });
   var rosterList = el("div",{class:"roster",style:"margin-top:18px;"});
@@ -1615,17 +1512,6 @@ function renderStudentProfile(root){
   var s = state.selectedStudent;
   var card = el("div",{class:"card"});
   card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
-  if(!canSeePrediction(s)){
-    card.appendChild(el("div",{class:"profile-head"},[
-      el("div",{},[
-        el("h2",{},[txt(s.name)]),
-        el("div",{class:"profile-meta"},[txt(gradeSectionLine(s))])
-      ])
-    ]));
-    card.appendChild(blindLabelBox(s));
-    root.appendChild(card);
-    return;
-  }
   card.appendChild(el("div",{class:"profile-head"},[
     el("div",{},[
       el("h2",{},[txt(s.name)]),
@@ -1645,55 +1531,9 @@ function renderStudentProfile(root){
     el("p",{},[txt(RECS[s.style].kid)])
   ]));
   card.appendChild(recoGrid);
-  card.appendChild(labelBox(s));
   root.appendChild(card);
 }
 
-/* Shown BEFORE the prediction: the teacher records what they observe. */
-function blindLabelBox(s){
-  var first = s.name.split(" ")[0];
-  var box = el("div",{class:"reco-card",style:"margin-top:14px;"},[]);
-  box.appendChild(el("h3",{},[txt("Which learning style do you observe in "+first+"?")]));
-  var msg = el("p",{style:"margin:6px 0 12px;"},[txt("Think about how "+first+" learns best in class. Please answer before seeing Landas's prediction \u2014 your observation is what the prediction is checked against. You can't change it afterwards.")]);
-  box.appendChild(msg);
-  var row = el("div",{style:"display:flex;flex-wrap:wrap;gap:8px;"},[]);
-  function save(label){
-    msg.textContent = "Saving\u2026";
-    api("/students/"+s.id+"/label",{method:"PUT",body:JSON.stringify({label:label})}).then(function(res){
-      if(res.error){ msg.textContent = res.error; return; }
-      s.label = label;
-      (state.cachedRoster||[]).forEach(function(r){ if(r.id===s.id) r.label = label; });
-      render();
-    });
-  }
-  ["V","A","R","K"].forEach(function(k){
-    row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ save(k); }},[txt(STYLE_ICON[k]+" "+STYLE_NAMES[k])]));
-  });
-  box.appendChild(row);
-  box.appendChild(el("div",{class:"forgot-link",style:"margin-top:14px;",onclick:function(){
-    state.revealed[s.id] = true; render();
-  }},[txt("Not sure \u2014 show me the prediction (this student won't be used in the accuracy check)")]));
-  return box;
-}
-
-/* Shown AFTER the prediction: read-only record of what the teacher said. */
-function labelBox(s){
-  var first = s.name.split(" ")[0];
-  var box = el("div",{class:"reco-card",style:"margin-top:14px;"},[]);
-  if(s.label){
-    box.appendChild(el("h3",{},[txt("Your observation")]));
-    box.appendChild(el("p",{style:"margin:6px 0 0;"},[txt("You recorded "+first+" as a "+STYLE_NAMES[s.label]+" learner before seeing the prediction. "+
-      (s.label===s.style ? "Landas's prediction matched." : "Landas predicted "+STYLE_NAMES[s.style]+".")+" This is saved and counted in the accuracy check.")]));
-  } else {
-    box.appendChild(el("h3",{},[txt("Not labeled")]));
-    box.appendChild(el("p",{style:"margin:6px 0 0;"},[txt("You chose not to record an observation for "+first+", so this student is not counted in the accuracy check.")]));
-  }
-  return box;
-}
-
-/* Decorative floating shapes in the background — purely visual, fills
-   the empty side margins on wide screens with a gentle kid-friendly float.
-   Appended once, outside #app, so re-renders never disturb it. */
 function setupBackgroundDecor(){
   var wrap = el("div",{class:"bg-decor"});
   var shapes = ["\u2601\uFE0F","\u2B50","\u2728","\uD83C\uDF08","\uD83C\uDF1F","\uD83C\uDF88","\uD83E\uDD8B","\uD83C\uDF3C","\uD83E\uDE81","\u2600\uFE0F","\u2601\uFE0F","\u2B50"];
@@ -1710,9 +1550,6 @@ function setupBackgroundDecor(){
   document.body.appendChild(wrap);
 }
 
-/* Small celebration burst of stars/sparkles near a clicked element —
-   used to make picking a quiz answer feel like a tiny win, not just a
-   static state change. */
 function celebrateBurst(originEl){
   var rect = originEl.getBoundingClientRect();
   var layer = document.createElement("div");

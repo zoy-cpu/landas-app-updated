@@ -22,8 +22,7 @@ router.put('/me/result', requireAuth('student'), async (req, res) => {
     await pool.query(
       `update students
           set style=$1, confidence=$2, completed_at=now(),
-              answers=coalesce($4::jsonb, answers),
-              teacher_label=null, labeled_at=null   -- a retake needs a fresh teacher confirmation
+              answers=coalesce($4::jsonb, answers)
         where id=$3`,
       [style, confidence, req.user.id, answersJson]
     );
@@ -44,7 +43,7 @@ router.get('/roster', requireAuth('teacher'), async (req, res) => {
     const { school, grade } = prof.rows[0];
 
     const roster = await pool.query(
-      `select id, name, school, grade, section, style, confidence, completed_at, teacher_label
+      `select id, name, school, grade, section, style, confidence, completed_at
        from students
        where school=$1 and grade=$2 and style is not null
        order by completed_at desc`,
@@ -60,39 +59,6 @@ router.get('/roster', requireAuth('teacher'), async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not load roster.' });
-  }
-});
-
-/* ---- teacher: record the learning style they observe in a student ----
-   Ground truth for evaluating the model. Recorded once, before the teacher sees
-   the prediction (a retake clears it). Only a teacher whose own school+grade
-   matches the student's can label that student. */
-router.put('/:id/label', requireAuth('teacher'), async (req, res) => {
-  const { label } = req.body;
-  if (!['V', 'A', 'R', 'K'].includes(label)) {
-    return res.status(400).json({ error: 'Invalid label.' });
-  }
-  try {
-    const prof = await pool.query(`select school, grade from teacher_profiles where id=$1`, [req.user.id]);
-    const { school, grade } = prof.rows[0];
-    const r = await pool.query(
-      `update students set teacher_label=$1, labeled_at=now()
-        where id=$2 and school=$3 and grade=$4 and style is not null
-          and teacher_label is null`,
-      [label, req.params.id, school, grade]
-    );
-    if (r.rowCount === 0) {
-      const ex = await pool.query(
-        `select 1 from students where id=$1 and school=$2 and grade=$3 and style is not null`,
-        [req.params.id, school, grade]
-      );
-      if (ex.rowCount === 0) return res.status(404).json({ error: 'Student not found in your class.' });
-      return res.status(409).json({ error: 'This student already has a recorded label. Tap Refresh to update the list.' });
-    }
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Could not save the label.' });
   }
 });
 

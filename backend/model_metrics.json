@@ -1,0 +1,89 @@
+{
+  "best_model": "Neural Network",
+  "accuracy": 0.7,
+  "macro_f1": 0.7041666666666666,
+  "macro_precision": 0.7708333333333334,
+  "macro_recall": 0.6875,
+  "labels": [
+    "V",
+    "A",
+    "R",
+    "K"
+  ],
+  "per_class": {
+    "V": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "A": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "R": {
+      "precision": 0.75,
+      "recall": 0.75,
+      "f1-score": 0.75,
+      "support": 4.0
+    },
+    "K": {
+      "precision": 0.3333333333333333,
+      "recall": 0.5,
+      "f1-score": 0.4,
+      "support": 2.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      3,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      1
+    ]
+  ],
+  "n_total": 10,
+  "folds": 2,
+  "all_models": {
+    "Fleming dominant rule": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "Decision Tree": {
+      "accuracy": 0.4,
+      "macro_precision": 0.1,
+      "macro_recall": 0.25,
+      "macro_f1": 0.14285714285714285
+    },
+    "Neural Network": {
+      "accuracy": 0.7,
+      "macro_precision": 0.7708333333333334,
+      "macro_recall": 0.6875,
+      "macro_f1": 0.7041666666666666
+    }
+  },
+  "generated_at": "2026-11-22T12:38:59",
+  "note": "2-fold cross-validation against Fleming VARK labels derived from q1..q16. Best model selected by cross-validation Macro F1. Small sample (n=10); treat results as preliminary."
+}

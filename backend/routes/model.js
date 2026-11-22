@@ -6,27 +6,23 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-/* Teachers see how much evaluation data exists, plus the latest results
-   written by ml/evaluate.py (backend/model_metrics.json) if it has been run. */
-router.get('/metrics', requireAuth('teacher'), async (req, res) => {
+/* Model performance metrics are kept offline in ml/evaluate.py and
+   backend/model_metrics.json for Chapter 4 evaluation rather than
+   being displayed on the website. */
+router.get('/status', requireAuth('teacher'), async (req, res) => {
   try {
     const c = await pool.query(
-      `select count(*) filter (where answers is not null)                         as with_answers,
-              count(*) filter (where answers is not null and teacher_label is not null) as labeled
+      `select count(*) filter (where answers is not null) as with_answers
          from students`
     );
-    let metrics = null;
-    try {
-      metrics = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'model_metrics.json'), 'utf8'));
-    } catch (e) { /* not generated yet */ }
+    const hasMetricsFile = fs.existsSync(path.join(__dirname, '..', 'model_metrics.json'));
     res.json({
       with_answers: Number(c.rows[0].with_answers),
-      labeled: Number(c.rows[0].labeled),
-      metrics
+      has_metrics_file: hasMetricsFile
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Could not load model status.' });
+    res.status(500).json({ error: 'Could not load status.' });
   }
 });
 
