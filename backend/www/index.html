@@ -522,6 +522,7 @@ var state = {
   currentStudent: null,
   currentUser: null,
   cachedRoster: [],
+  revealed: {},
   classDashSection: null,
   loadingMessage: "",
   authErrorMsg: "",
@@ -809,7 +810,7 @@ function goHome(){
   state.screen="start"; state.demo={name:"",age:"",school:"",grade:"",section:""}; state.answers={}; state.qIndex=0; state.result=null;
   state.teacherLoggedIn=false; state.teacherGrade=null; state.teacherSchool=null; state.teacherName=null;
   state.studentLoggedIn=false; state.currentStudent=null; state.currentUser=null;
-  state.cachedRoster=[]; state.resetSent=false; state.authErrorMsg=""; state.signupSuccess=false; state.classDashSection=null;
+  state.cachedRoster=[]; state.revealed={}; state.resetSent=false; state.authErrorMsg=""; state.signupSuccess=false; state.classDashSection=null;
   render();
 }
 
@@ -1417,7 +1418,7 @@ function renderModelPerf(root){
   function pct(v){ return (v*100).toFixed(1)+"%"; }
   var cards = el("div",{class:"reco-grid"},[]);
   cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Accuracy")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.accuracy))]),el("p",{},[txt("Best model: "+m.best_model)])]));
-  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Macro F1-score")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.macro_f1))]),el("p",{},[txt("Tested on "+m.n_test+" students (trained on "+m.n_train+")")])]));
+  cards.appendChild(el("div",{class:"reco-card"},[el("h3",{},[txt("Macro F1-score")]),el("p",{style:"font-size:26px;font-weight:700;margin:4px 0;"},[txt(pct(m.macro_f1))]),el("p",{},[txt(m.folds+"-fold cross-validation on "+m.n_total+" students")])]));
   card.appendChild(cards);
   var tbl = el("table",{style:"width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;"},[]);
   function tr(cells,head){ var r=el("tr",{},[]); cells.forEach(function(c){ r.appendChild(el(head?"th":"td",{style:"text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);"},[txt(String(c))])); }); return r; }
@@ -1444,6 +1445,18 @@ function renderModelPerf(root){
 }
 
 /* ---- teacher: class dashboard ---- */
+/* ---- blind labeling ----
+   The teacher must record the style THEY observe before seeing Landas's
+   prediction, so the "true label" is independent of the system. Until a
+   student is labeled (or the teacher taps "Not sure"), the predicted style is
+   hidden in the student list and on the student's page. */
+function canSeePrediction(s){ return !!(s.label || state.revealed[s.id]); }
+function styleBadgeFor(s){
+  return canSeePrediction(s)
+    ? el("div",{class:"mini-badge "+s.style},[txt(STYLE_NAMES[s.style])])
+    : el("div",{class:"mini-badge",style:"background:var(--line);color:var(--ink-soft);"},[txt("Needs your label")]);
+}
+
 function renderClassDash(root){
   root.appendChild(topbar(goHome));
   var card = el("div",{class:"card"});
@@ -1557,7 +1570,7 @@ function rosterRow(s){
       el("div",{class:"roster-name"},[txt(s.name), s.isNew ? el("span",{class:"new-tag"},[txt("NEW")]) : null]),
       el("div",{class:"roster-meta"},[txt(gradeSectionLine(s))])
     ]),
-    el("div",{class:"mini-badge "+s.style},[txt(STYLE_NAMES[s.style])])
+    styleBadgeFor(s)
   ]);
 }
 
@@ -1568,7 +1581,7 @@ function renderStudentPicker(root){
   card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
   card.appendChild(el("div",{class:"forgot-link",style:"float:right;margin-top:-2px;",onclick:function(){ refreshRoster("studentPicker"); }},[txt("\uD83D\uDD04 Refresh")]));
   card.appendChild(el("h2",{},[txt("Select a "+state.teacherGrade+" student")]));
-  card.appendChild(el("p",{},[txt("Pick a name to view their predicted learning style and recommendations.")]));
+  card.appendChild(el("p",{},[txt("Pick a name. You'll first record the learning style you observe, then see Landas's prediction.")]));
   var gRoster = gradeRoster();
   var gSections = gRoster.map(function(s){return s.section;}).filter(function(s,i,arr){ return s && arr.indexOf(s) === i; });
   var rosterList = el("div",{class:"roster",style:"margin-top:18px;"});
@@ -1602,6 +1615,17 @@ function renderStudentProfile(root){
   var s = state.selectedStudent;
   var card = el("div",{class:"card"});
   card.appendChild(el("div",{class:"back-link",onclick:function(){ state.screen="teacherHome"; render(); }},[txt("\u2190 Dashboard")]));
+  if(!canSeePrediction(s)){
+    card.appendChild(el("div",{class:"profile-head"},[
+      el("div",{},[
+        el("h2",{},[txt(s.name)]),
+        el("div",{class:"profile-meta"},[txt(gradeSectionLine(s))])
+      ])
+    ]));
+    card.appendChild(blindLabelBox(s));
+    root.appendChild(card);
+    return;
+  }
   card.appendChild(el("div",{class:"profile-head"},[
     el("div",{},[
       el("h2",{},[txt(s.name)]),
@@ -1625,15 +1649,12 @@ function renderStudentProfile(root){
   root.appendChild(card);
 }
 
-/* Teacher confirms (or corrects) the predicted style. These answers are the
-   "true labels" used to measure how accurate the predictions are. */
-function labelBox(s){
+/* Shown BEFORE the prediction: the teacher records what they observe. */
+function blindLabelBox(s){
   var first = s.name.split(" ")[0];
   var box = el("div",{class:"reco-card",style:"margin-top:14px;"},[]);
-  box.appendChild(el("h3",{},[txt("Does this match what you observe in class?")]));
-  var msg = el("p",{style:"margin:6px 0 10px;"},[txt(s.label
-    ? "Saved: you recorded "+first+" as a "+STYLE_NAMES[s.label]+" learner. You can change it below."
-    : "Your answer helps check how accurate Landas's predictions are.")]);
+  box.appendChild(el("h3",{},[txt("Which learning style do you observe in "+first+"?")]));
+  var msg = el("p",{style:"margin:6px 0 12px;"},[txt("Think about how "+first+" learns best in class. Please answer before seeing Landas's prediction \u2014 your observation is what the prediction is checked against. You can't change it afterwards.")]);
   box.appendChild(msg);
   var row = el("div",{style:"display:flex;flex-wrap:wrap;gap:8px;"},[]);
   function save(label){
@@ -1645,11 +1666,28 @@ function labelBox(s){
       render();
     });
   }
-  row.appendChild(el("button",{class:"btn btn-primary",onclick:function(){ save(s.style); }},[txt("\u2713 Yes, it matches")]));
-  ["V","A","R","K"].filter(function(k){ return k!==s.style; }).forEach(function(k){
-    row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ save(k); }},[txt("Actually "+STYLE_NAMES[k])]));
+  ["V","A","R","K"].forEach(function(k){
+    row.appendChild(el("button",{class:"btn btn-ghost",onclick:function(){ save(k); }},[txt(STYLE_ICON[k]+" "+STYLE_NAMES[k])]));
   });
   box.appendChild(row);
+  box.appendChild(el("div",{class:"forgot-link",style:"margin-top:14px;",onclick:function(){
+    state.revealed[s.id] = true; render();
+  }},[txt("Not sure \u2014 show me the prediction (this student won't be used in the accuracy check)")]));
+  return box;
+}
+
+/* Shown AFTER the prediction: read-only record of what the teacher said. */
+function labelBox(s){
+  var first = s.name.split(" ")[0];
+  var box = el("div",{class:"reco-card",style:"margin-top:14px;"},[]);
+  if(s.label){
+    box.appendChild(el("h3",{},[txt("Your observation")]));
+    box.appendChild(el("p",{style:"margin:6px 0 0;"},[txt("You recorded "+first+" as a "+STYLE_NAMES[s.label]+" learner before seeing the prediction. "+
+      (s.label===s.style ? "Landas's prediction matched." : "Landas predicted "+STYLE_NAMES[s.style]+".")+" This is saved and counted in the accuracy check.")]));
+  } else {
+    box.appendChild(el("h3",{},[txt("Not labeled")]));
+    box.appendChild(el("p",{style:"margin:6px 0 0;"},[txt("You chose not to record an observation for "+first+", so this student is not counted in the accuracy check.")]));
+  }
   return box;
 }
 

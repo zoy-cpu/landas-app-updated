@@ -63,9 +63,10 @@ router.get('/roster', requireAuth('teacher'), async (req, res) => {
   }
 });
 
-/* ---- teacher: confirm (or correct) a student's learning style ----
-   This is the "ground truth" used to evaluate the model. Only a teacher
-   whose own school+grade matches the student's can label that student. */
+/* ---- teacher: record the learning style they observe in a student ----
+   Ground truth for evaluating the model. Recorded once, before the teacher sees
+   the prediction (a retake clears it). Only a teacher whose own school+grade
+   matches the student's can label that student. */
 router.put('/:id/label', requireAuth('teacher'), async (req, res) => {
   const { label } = req.body;
   if (!['V', 'A', 'R', 'K'].includes(label)) {
@@ -76,10 +77,18 @@ router.put('/:id/label', requireAuth('teacher'), async (req, res) => {
     const { school, grade } = prof.rows[0];
     const r = await pool.query(
       `update students set teacher_label=$1, labeled_at=now()
-        where id=$2 and school=$3 and grade=$4 and style is not null`,
+        where id=$2 and school=$3 and grade=$4 and style is not null
+          and teacher_label is null`,
       [label, req.params.id, school, grade]
     );
-    if (r.rowCount === 0) return res.status(404).json({ error: 'Student not found in your class.' });
+    if (r.rowCount === 0) {
+      const ex = await pool.query(
+        `select 1 from students where id=$1 and school=$2 and grade=$3 and style is not null`,
+        [req.params.id, school, grade]
+      );
+      if (ex.rowCount === 0) return res.status(404).json({ error: 'Student not found in your class.' });
+      return res.status(409).json({ error: 'This student already has a recorded label. Tap Refresh to update the list.' });
+    }
     res.json({ ok: true });
   } catch (err) {
     console.error(err);

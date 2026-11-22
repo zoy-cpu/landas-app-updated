@@ -139,7 +139,7 @@ def main():
         "accuracy": b["accuracy"], "macro_f1": b["macro_f1"],
         "macro_precision": b["macro_precision"], "macro_recall": b["macro_recall"],
         "labels": LABELS, "per_class": b["per_class"], "confusion_matrix": b["confusion_matrix"],
-        "n_total": n, "n_test": n, "n_train": n - int(np.ceil(n / folds)), "folds": folds,
+        "n_total": n, "folds": folds,
         "all_models": {k: {m: v for m, v in r.items() if m in ("accuracy", "macro_precision", "macro_recall", "macro_f1")}
                        for k, r in results.items()},
         "generated_at": datetime.datetime.now().isoformat(timespec="seconds"),
